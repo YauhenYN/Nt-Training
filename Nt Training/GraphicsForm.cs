@@ -43,11 +43,26 @@ namespace Nt_Training
 
         private void button1_Click(object sender, EventArgs e)
         {
-            map.MoveMapOn(panelForDrawing, 5, InGraphics.MoveTo.left);
+            map.MoveMapOn(panelForDrawing, 5, InGraphics.MoveTo.right);
         }
         private void timer1_Tick(object sender, EventArgs e)
         {
             map.MoveMapOn(panelForDrawing, 1, InGraphics.MoveTo.right);
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            map.MoveMapOn(panelForDrawing, 5, InGraphics.MoveTo.top);
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            map.MoveMapOn(panelForDrawing, 5, InGraphics.MoveTo.left);
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            map.MoveMapOn(panelForDrawing, 5, InGraphics.MoveTo.down);
         }
     }
 }
