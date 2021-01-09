@@ -9,7 +9,6 @@ namespace Nt_Training.InGraphics
 {
     public class Character
     {
-
         public int speed { get; set; }
         private byte direction;
         Point place;
