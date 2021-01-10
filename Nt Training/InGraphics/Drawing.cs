@@ -8,20 +8,43 @@ using System.Windows.Forms;
 
 namespace Nt_Training.InGraphics
 {
-    //Сделать класс защищённым
-    static class Drawing
+    public interface IDraw
     {
-        static Bitmap GraphicsBuffer { get; set; }
-        public static void SetBuffer(Control element)
+        void DrawOn(Bitmap GraphicsBuffer);
+    }
+    public class Drawing
+    {
+        public delegate void DrawingHandler(Bitmap GraphicsBuffer);
+        public event DrawingHandler OnDraw;
+        Control _control;
+        Color _backColor = Color.Red; //ЗАМЕНИТЬ НА НОРМАЛЬНЫЙ ЭЛЕМЕНТ, ЛУЧШЕ СТРУКТУРУ ГДЕ МОЖНО БЫЛО БЫ ИСПОЛЬЗОВАТЬ ЛИБО ЦВЕТ, ЛИБО КАРТИНКУ
+        Bitmap _graphicsBuffer { get; set; }
+        public Drawing SetBuffer(Control control, Color backColor)
         {
-            GraphicsBuffer = new Bitmap(element.Width, element.Height);
+            _control = control;
+            _backColor = backColor;
+            _graphicsBuffer = new Bitmap(control.Width, control.Height);
+            return this;
         }
-        public static void Draw(Control element)
+        public void Draw()
         {
-            using (Graphics graphics = element.CreateGraphics())
+            using (Graphics graphics = _control.CreateGraphics())
             {
-                graphics.DrawImage(GraphicsBuffer, new PointF());
+                using (Graphics imageGraphics = Graphics.FromImage(_graphicsBuffer))
+                {
+                    imageGraphics.Clear(_backColor);
+                }
+                OnDraw(_graphicsBuffer);
+                graphics.DrawImage(_graphicsBuffer, new Point());
             }
+        }
+        public void DisposeBuffer()
+        {
+            _graphicsBuffer.Dispose(); //ВОЗМОЖНО НУЖНО БУДЕТ ДОБАВИТЬ СЮДА ЕЩЁ ЧТО-ЛИБО
+        }
+        public void RefreshBuffer()
+        {
+            _graphicsBuffer = new Bitmap(_control.Width, _control.Height);
         }
     }
 }

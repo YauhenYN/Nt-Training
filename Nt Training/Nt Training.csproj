@@ -58,9 +58,10 @@
     <Compile Include="GraphicsForm.Designer.cs">
       <DependentUpon>GraphicsForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="InGraphics\Character.cs" />
     <Compile Include="InGraphics\Drawing.cs" />
-    <Compile Include="InGraphics\GraphicsMap.cs" />
+    <Compile Include="InGraphics\Moving.cs" />
+    <Compile Include="InGraphics\StandardDrawingElements\Square2DMap.cs" />
+    <Compile Include="InGraphics\StandardDrawingElements\SquareElement.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="EntranceForm.resx">
@@ -93,7 +94,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Network\" />
-    <Folder Include="Physics\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

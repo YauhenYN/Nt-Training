@@ -24,45 +24,55 @@ namespace Nt_Training
         {
             Application.Exit();
         }
-        InGraphics.GraphicsMap map;
+        InGraphics.Drawing _drawing;
+        InGraphics.StandardDrawingElements.Square2DMap _map;
+        InGraphics.StandardDrawingElements.SquareElement _character;
+
         private void GraphicsForm_Shown(object sender, EventArgs e)
         {
-            map = new InGraphics.GraphicsMap(Color.Gray, Color.White, 45, 45, 15);
+            _map = new InGraphics.StandardDrawingElements.Square2DMap(Color.Gray, 45, 45, 15);
+            _map.SetCommonDegree(90);
+            _map.ChangeDirection(45, 1);
+            _character = new InGraphics.StandardDrawingElements.SquareElement(Color.Blue, 50, 50, 30);
             for(int step = 0; step < 40; step++)
             {
-                map.setBlock(0, step);
+                _map.setBlock(0, step);
             }
             for (int step = 1; step < 40; step++)
             {
-                map.setBlock(step, step);
+                _map.setBlock(step, step);
             }
-            map.setBlock(2, 6);
-            map.setBlock(3, 9);
-            map.DrawOn(panelForDrawing);
+            _map.setBlock(2, 6);
+            _map.setBlock(3, 9);
+            _drawing = new InGraphics.Drawing().SetBuffer(panelForDrawing, Color.White);
+            _drawing.OnDraw += _map.DrawOn;
+            _drawing.OnDraw += _character.DrawOn;
         }
-
         private void button1_Click(object sender, EventArgs e)
         {
-            map.MoveMapOn(panelForDrawing, 5, InGraphics.MoveTo.right);
+            _map.MoveOn(5, InGraphics.Moving.MoveTo.right);
         }
         private void timer1_Tick(object sender, EventArgs e)
         {
-            map.MoveMapOn(panelForDrawing, 1, InGraphics.MoveTo.right);
+            _map.Move();
+            _drawing.Draw();
+            _drawing.DisposeBuffer();
+            _drawing.RefreshBuffer();
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
-            map.MoveMapOn(panelForDrawing, 5, InGraphics.MoveTo.top);
+            _map.MoveOn(5, InGraphics.Moving.MoveTo.top);
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            map.MoveMapOn(panelForDrawing, 5, InGraphics.MoveTo.left);
+            _map.MoveOn(5, InGraphics.Moving.MoveTo.left);
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
-            map.MoveMapOn(panelForDrawing, 5, InGraphics.MoveTo.down);
+            _map.MoveOn(5, InGraphics.Moving.MoveTo.down);
         }
     }
 }
