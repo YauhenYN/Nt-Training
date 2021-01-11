@@ -8,5 +8,6 @@ namespace Nt_Training.SystemNetwork.Layers
 {
     public class OutputLayer : Layer
     {
+        public List<Neurons.OutputNeuron> OutPutNeurons;
     }
 }

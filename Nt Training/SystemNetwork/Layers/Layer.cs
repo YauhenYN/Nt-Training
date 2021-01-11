@@ -8,6 +8,6 @@ namespace Nt_Training.SystemNetwork.Layers
 {
     public abstract class Layer
     {
-        List<Neurons.Neuron> _neurons;
+
     }
 }

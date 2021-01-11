@@ -40,7 +40,7 @@ namespace Nt_Training.InGraphics
         }
         public void DisposeBuffer()
         {
-            _graphicsBuffer.Dispose(); //ВОЗМОЖНО НУЖНО БУДЕТ ДОБАВИТЬ СЮДА ЕЩЁ ЧТО-ЛИБО
+            _graphicsBuffer.Dispose();
         }
         public void RefreshBuffer()
         {

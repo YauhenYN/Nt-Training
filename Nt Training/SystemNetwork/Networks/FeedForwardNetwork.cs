@@ -8,5 +8,8 @@ namespace Nt_Training.SystemNetwork.Networks
 {
     public class FeedForwardNetwork : Network
     {
+        public FeedForwardNetwork(Neurons.ActivationFunctions.ActivationFuncton function) : base(function)
+        {
+        }
     }
 }

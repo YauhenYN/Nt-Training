@@ -8,5 +8,6 @@ namespace Nt_Training.SystemNetwork.Layers
 {
     public class AverageLayer : Layer
     {
+        public List<Neurons.AverageNeuron> AverageNeurons;
     }
 }
