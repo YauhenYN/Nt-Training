@@ -32,7 +32,7 @@ namespace Nt_Training
         {
             _map = new InGraphics.StandardDrawingElements.Square2DMap(Color.Gray, 45, 45, 15);
             _map.SetCommonDegree();
-            _map.ChangeDirection(80, InGraphics.Moving.Direction.top, 1);
+            _map.ChangeDirection(90, InGraphics.Moving.Direction.left, 1);
             _character = new InGraphics.StandardDrawingElements.SquareElement(Color.Blue, 50, 50, 30);
             for(int step = 0; step < 40; step++)
             {
@@ -51,7 +51,8 @@ namespace Nt_Training
         }
         private void button1_Click(object sender, EventArgs e)
         {
-            _map.MoveOn(5, InGraphics.Moving.MoveTo.right);
+            _map.ChangeDirection(60, InGraphics.Moving.Direction.left, 1);
+            //_map.MoveOn(5, InGraphics.Moving.MoveTo.right);
         }
         private void timer1_Tick(object sender, EventArgs e)
         {
@@ -63,17 +64,19 @@ namespace Nt_Training
 
         private void button3_Click(object sender, EventArgs e)
         {
-            _map.MoveOn(5, InGraphics.Moving.MoveTo.top);
+            _map.ChangeDirection(70, InGraphics.Moving.Direction.right, 1);
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            _map.MoveOn(5, InGraphics.Moving.MoveTo.left);
+            _map.ChangeDirection(70, InGraphics.Moving.Direction.left, 1);
+            //_map.MoveOn(5, InGraphics.Moving.MoveTo.left);
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
-            _map.MoveOn(5, InGraphics.Moving.MoveTo.down);
+            _map.ChangeDirection(70, InGraphics.Moving.Direction.left, 1);
+            //_map.MoveOn(5, InGraphics.Moving.MoveTo.down);
         }
     }
 }
