@@ -60,7 +60,6 @@
             // 
             // timer1
             // 
-            this.timer1.Enabled = true;
             this.timer1.Interval = 10;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
@@ -76,7 +75,7 @@
             // button2
             // 
             this.button2.Location = new System.Drawing.Point(585, 185);
-            this.button2.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.button2.Margin = new System.Windows.Forms.Padding(4);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(87, 23);
             this.button2.TabIndex = 3;
@@ -87,7 +86,7 @@
             // button3
             // 
             this.button3.Location = new System.Drawing.Point(635, 142);
-            this.button3.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.button3.Margin = new System.Windows.Forms.Padding(4);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(87, 23);
             this.button3.TabIndex = 4;
@@ -98,7 +97,7 @@
             // button4
             // 
             this.button4.Location = new System.Drawing.Point(635, 228);
-            this.button4.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.button4.Margin = new System.Windows.Forms.Padding(4);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(87, 23);
             this.button4.TabIndex = 5;

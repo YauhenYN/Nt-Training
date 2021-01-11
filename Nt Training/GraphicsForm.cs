@@ -31,8 +31,8 @@ namespace Nt_Training
         private void GraphicsForm_Shown(object sender, EventArgs e)
         {
             _map = new InGraphics.StandardDrawingElements.Square2DMap(Color.Gray, 45, 45, 15);
-            _map.SetCommonDegree(90);
-            _map.ChangeDirection(45, 1);
+            _map.SetCommonDegree();
+            _map.ChangeDirection(80, InGraphics.Moving.Direction.top, 1);
             _character = new InGraphics.StandardDrawingElements.SquareElement(Color.Blue, 50, 50, 30);
             for(int step = 0; step < 40; step++)
             {
@@ -47,6 +47,7 @@ namespace Nt_Training
             _drawing = new InGraphics.Drawing().SetBuffer(panelForDrawing, Color.White);
             _drawing.OnDraw += _map.DrawOn;
             _drawing.OnDraw += _character.DrawOn;
+            timer1.Enabled = true;
         }
         private void button1_Click(object sender, EventArgs e)
         {

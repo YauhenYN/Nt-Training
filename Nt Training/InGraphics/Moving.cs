@@ -10,58 +10,80 @@ namespace Nt_Training.InGraphics
 {
     public abstract class Moving
     {
+        public enum Direction
+        {
+            down = 1,
+            left,
+            top,
+            right
+        }
         public class EntireAngle
         {
             public class Angle
             {
-                byte _angleDegrees;
-                public byte AngleDegrees { get { return _angleDegrees; } set { if (value < 181) _angleDegrees = value; } }
+                int _angleDegrees;
+                public int AngleDegrees { get { return _angleDegrees; } set { if (value < 90 && value > -1) _angleDegrees = value; } }
                 private double _remainder;
                 private double _neededCellValue;
-                public Angle(byte degrees, int divider) : this(degrees)
+                public Angle(int degrees, double divider) : this(degrees)
                 {
-                    _remainder = degrees / divider;                    //ГДЕ-ТО ГУЛЯЕТ ЦЕЛОЕ ЧИСЛО
+                    _remainder = degrees / divider;
                     _neededCellValue = _remainder;
-                }
-                public Angle(byte degrees)
+                } //ПРОБЛЕМА В ТОМ, ЧТО НЕ МЕНЕТ НАПРАВЛЕНИЕ - +, -
+                public Angle(int degrees)
                 {
                     AngleDegrees = degrees;
                 }
                 public int GetSwitch()
                 {
-                    //MessageBox.Show(_remainder.ToString());
                     if (_remainder < 1) { _remainder += _neededCellValue; return 0; }
-                    else { _remainder = _neededCellValue; return (int)_remainder; }
+                    else { int answer = Convert.ToInt32(_remainder); _remainder = _neededCellValue; return answer;}
                 }
             }
-            Angle _commonAngle;
             public Angle leftAngle { get; private set; }
             public Angle rightAngle { get; private set; }
-            public EntireAngle(byte commonDegrees)
+            private int xVector = 1;
+            private int yVector = 1;
+            public void setAnglesValue(int leftAngleDegrees, Direction direction, double speed)
             {
-                _commonAngle = new Angle(commonDegrees);
-            }
-            public void setAnglesValue(byte leftAngleDegrees, int speed)
-            {
-                int divider = _commonAngle.AngleDegrees / speed;
+                double divider = 90 / speed;
                 leftAngle = new Angle(leftAngleDegrees, divider);
-                
-                rightAngle = new Angle((byte)(_commonAngle.AngleDegrees - leftAngleDegrees), divider);
+                rightAngle = new Angle(90 - leftAngleDegrees, divider);
+                if(direction == Direction.down) //НУЖНО ПЕРЕДЕЛАТЬ БЕЗ IF
+                {
+                    xVector = 1;
+                    yVector = 1;
+                }
+                else if (direction == Direction.left)
+                {
+                    xVector = -1;
+                    yVector = 1;
+                }
+                else if(direction == Direction.top)
+                {
+                    xVector = -1;
+                    yVector = -1;
+                }
+                else
+                {
+                    xVector = 1;
+                    yVector = -1;
+                }
             }
             public Point getNextPoint()
             {
-                return leftAngle != null ? new Point(leftAngle.GetSwitch(), rightAngle.GetSwitch()) : new Point(0, 0);
+                return leftAngle != null ? new Point(leftAngle.GetSwitch() * xVector, rightAngle.GetSwitch() * yVector) : new Point(0, 0);
             }
         }
         public Moving() { }
         EntireAngle _entireAngle;
-        public void SetCommonDegree(byte commonDegrees)
+        public void SetCommonDegree()
         {        //commonDegrees - НЕТ БЕЗОПАСНОСТИ, НУЖНО ХОТЯ-БЫ СОЗДАТЬ ОТДЕЛЬНЫЙ ТИП С УГЛОМ
-            _entireAngle = new EntireAngle(commonDegrees);
+            _entireAngle = new EntireAngle();
         }
-        public void ChangeDirection(byte leftAnglesDegrees, int speed)
+        public void ChangeDirection(int leftAnglesDegrees, Direction direction, double speed)
         {
-            _entireAngle.setAnglesValue(leftAnglesDegrees, speed);
+            _entireAngle.setAnglesValue(leftAnglesDegrees, direction, speed);
         }
         protected Point GetNextCell() => _entireAngle != null ? _entireAngle.getNextPoint() : new Point(0, 0);
         protected static MovingToSide[] sides { get; } = { new MovingUp(), new MovingDown(), new MovingToLeft(), new MovingToRight() };
