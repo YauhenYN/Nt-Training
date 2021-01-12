@@ -8,7 +8,7 @@ namespace Nt_Training.SystemNetwork.Neurons
 {
     public abstract class Neuron
     {
-        protected double _value;
-        public void ClearValue() => _value = 0;
+        public double Value { get; protected set; }
+        public void ClearValue() => Value = 0;
     }
 }

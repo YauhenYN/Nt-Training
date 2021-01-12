@@ -8,17 +8,21 @@ namespace Nt_Training.SystemNetwork.Neurons
 {
     public class OutputNeuron : Neuron
     {
-        public List<Bonds.Bond> InPutBonds;
+        public OutputNeuron() => _inputBonds = new List<Bonds.Bond>();
+        List<Bonds.Bond> _inputBonds;
+        public Bonds.Bond[] InputBonds { get { return _inputBonds.ToArray(); } }
+        public void AddInputBond(Bonds.Bond bond)
+        {
+            if (!_inputBonds.Contains(bond)) _inputBonds.Add(bond);
+        }
+        public void RemoveInputBond(Bonds.Bond bond) => _inputBonds.Remove(bond);
         public void AdderActivation()
         {
-            foreach (Bonds.Bond bond in InPutBonds)
+            foreach (Bonds.Bond bond in _inputBonds)
             {
-                _value += bond.PuttingResult;
+                Value += bond.PuttingResult;
             }
         }
-        public double ActivateFunction(Func<double, double> activation)
-        {
-            return activation(_value);
-        }
+        public double ActivateFunction(Func<double, double> activation) => activation(Value);
     }
 }

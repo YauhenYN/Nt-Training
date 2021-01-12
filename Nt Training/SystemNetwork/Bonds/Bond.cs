@@ -8,21 +8,17 @@ namespace Nt_Training.SystemNetwork.Bonds
 {
     public abstract class Bond
     {
-        public Neurons.Neuron InPutNeuron { get; }
-        public Neurons.Neuron OutPutNeuron { get; }
+        public Neurons.Neuron InputNeuron { get; }
+        public Neurons.Neuron OutputNeuron { get; }
         private double _weigh;
         public double Weigh { get { return _weigh; } set { if (value >= 0 && value <= 1) _weigh = value; } }
-        public Bond(Neurons.Neuron inputNeuron, Neurons.Neuron outPutBeuron, double weigh)
+        public Bond(Neurons.Neuron inputNeuron, Neurons.Neuron outputNeuron, double weigh)
         {
-            InPutNeuron = inputNeuron;
-            OutPutNeuron = outPutBeuron;
+            InputNeuron = inputNeuron;
+            OutputNeuron = outputNeuron;
             _weigh = weigh;
         }
         public double PuttingResult { get; private set; }
-        public void Put(double inPutValue)
-        {
-            PuttingResult = inPutValue * Weigh;
-        }
-        public void ClearPuttingResult() => PuttingResult = 0;
+        public void Put(double inPutValue) => PuttingResult = inPutValue * Weigh;
     }
 }

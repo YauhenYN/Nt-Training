@@ -8,6 +8,7 @@ namespace Nt_Training.SystemNetwork.Layers
 {
     public class InputLayer
     {
-        public List<Neurons.InputNeuron> inputNeurons; //ИНКАПСУЛЯЦИЯ
+        public List<Neurons.InputNeuron> InputNeurons { get; private set; }
+        public InputLayer(params Neurons.InputNeuron[] inputNeurons) => InputNeurons.AddRange(inputNeurons);
     }
 }

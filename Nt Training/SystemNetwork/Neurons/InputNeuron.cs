@@ -8,7 +8,14 @@ namespace Nt_Training.SystemNetwork.Neurons
 {
     public class InputNeuron : Neuron
     {
-        public List<Bonds.Bond> outPutBonds { get; }
-        public void InPut(bool InValue) => _value = Convert.ToDouble(InValue);
+        public InputNeuron() =>  _outPutBonds = new List<Bonds.Bond>();
+        List<Bonds.Bond> _outPutBonds;
+        public Bonds.Bond[] OutPutBonds { get { return _outPutBonds.ToArray(); } }
+        public void AddOutPutBond(Bonds.Bond bond)
+        {
+            if (!_outPutBonds.Contains(bond)) _outPutBonds.Add(bond);
+        }
+        public void RemoveOutputBond(Bonds.Bond bond) => _outPutBonds.Remove(bond);
+        public void InPut(bool InValue) => Value = Convert.ToDouble(InValue);
     }
 }

@@ -10,9 +10,6 @@ namespace Nt_Training.SystemNetwork.Neurons.ActivationFunctions
     {
         int _a;
         public LogisticFunction(int a) => _a = a;
-        public override double Activate(double inPutValue)
-        {
-            return 1 / (1 + Math.E * (-_a * inPutValue));
-        }
+        public override double Activate(double inPutValue) => 1 / (1 + Math.E * (-_a * inPutValue));
     }
 }
