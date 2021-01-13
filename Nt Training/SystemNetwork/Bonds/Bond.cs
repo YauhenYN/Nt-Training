@@ -3,15 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Nt_Training.SystemNetwork.Bonds
 {
-    public abstract class Bond
+    public class Bond
     {
         public Neurons.Neuron InputNeuron { get; }
         public Neurons.Neuron OutputNeuron { get; }
         private double _weigh;
-        public double Weigh { get { return _weigh; } set { if (value >= 0 && value <= 1) _weigh = value; } }
+        public double Weigh { get { return _weigh; } set { if(value >= -1 && value <= 1) _weigh = value; } }
         public Bond(Neurons.Neuron inputNeuron, Neurons.Neuron outputNeuron, double weigh)
         {
             InputNeuron = inputNeuron;

@@ -8,7 +8,8 @@ namespace Nt_Training.SystemNetwork.Layers
 {
     public class AverageLayer : Layer
     {
+        public AverageLayer() => AverageNeurons = new List<Neurons.AverageNeuron>(); 
         public List<Neurons.AverageNeuron> AverageNeurons { get; private set; }
-        public AverageLayer(params Neurons.AverageNeuron[] averageNeurons) => AverageNeurons.AddRange(averageNeurons);
+        public AverageLayer(params Neurons.AverageNeuron[] averageNeurons) : this() => AverageNeurons.AddRange(averageNeurons);
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Nt_Training.SystemNetwork.Networks
 {
@@ -24,13 +25,13 @@ namespace Nt_Training.SystemNetwork.Networks
         public void AddAverageLayer(Layers.AverageLayer averageLayer) => _averageLayers.Add(averageLayer);
         public void AddOutPutNeurons(params Neurons.OutputNeuron[] outputNeurons) => _outputLayer.OutputNeurons.AddRange(outputNeurons);
         public void AddOutPutNeurons(Layers.OutputLayer outputLayer) => _outputLayer = outputLayer;
-        public double[] Start(params bool[] entranceData)
+        public double[] Start(params double[] entranceData)
         {
             double[] resultsOfNetwork = new double[_outputLayer.OutputNeurons.Count];
             for(int step = 0; step < _inputLayer.InputNeurons.Count; step++)
             {
                 _inputLayer.InputNeurons[step].InPut(entranceData[step]);
-                for(int inStep = 0; inStep < _inputLayer.InputNeurons[step].OutPutBonds.Length; inStep++)
+                for (int inStep = 0; inStep < _inputLayer.InputNeurons[step].OutPutBonds.Length; inStep++)
                 {
                     _inputLayer.InputNeurons[step].OutPutBonds[inStep].Put(_inputLayer.InputNeurons[step].Value);
                 }

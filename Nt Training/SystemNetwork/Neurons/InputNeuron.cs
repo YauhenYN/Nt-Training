@@ -16,6 +16,7 @@ namespace Nt_Training.SystemNetwork.Neurons
             if (!_outPutBonds.Contains(bond)) _outPutBonds.Add(bond);
         }
         public void RemoveOutputBond(Bonds.Bond bond) => _outPutBonds.Remove(bond);
-        public void InPut(bool InValue) => Value = Convert.ToDouble(InValue);
+        public void InPut(double InValue) => Value = Convert.ToDouble(InValue);
+        //ДОБАВИТЬ В НЕЙРОНЫ АВТОМАТИЧЕСКУЮ ПЕРЕДАЧУ В СВЯЗИ
     }
 }

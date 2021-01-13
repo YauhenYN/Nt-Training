@@ -9,6 +9,7 @@ namespace Nt_Training.SystemNetwork.Layers
     public class OutputLayer : Layer
     {
         public List<Neurons.OutputNeuron> OutputNeurons { get; private set; }
-        public OutputLayer(params Neurons.OutputNeuron[] outputNeurons) => OutputNeurons.AddRange(outputNeurons);
+        public OutputLayer() => OutputNeurons = new List<Neurons.OutputNeuron>();
+        public OutputLayer(params Neurons.OutputNeuron[] outputNeurons) : this() => OutputNeurons.AddRange(outputNeurons);
     }
 }

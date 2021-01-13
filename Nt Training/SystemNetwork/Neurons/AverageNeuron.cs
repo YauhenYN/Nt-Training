@@ -3,12 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Nt_Training.SystemNetwork.Neurons
 {
     public class AverageNeuron : Neuron
     {
-        public AverageNeuron() => _inputBonds = new List<Bonds.Bond>();
+        public AverageNeuron()
+        {
+            _outputBonds = new List<Bonds.Bond>();
+            _inputBonds = new List<Bonds.Bond>();
+        }
         List<Bonds.Bond> _inputBonds;
         public Bonds.Bond[] InputBonds { get { return _inputBonds.ToArray(); } }
         public void AddInputBond(Bonds.Bond bond)

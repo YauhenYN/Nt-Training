@@ -8,7 +8,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Threading;
-
 namespace Nt_Training
 {
     public partial class GraphicsForm : Form
@@ -48,6 +47,72 @@ namespace Nt_Training
             _drawing.OnDraw += _map.DrawOn;
             _drawing.OnDraw += _character.DrawOn;
             timer1.Enabled = true;
+
+            SystemNetwork.Neurons.InputNeuron[] inputNeurons = new SystemNetwork.Neurons.InputNeuron[3];
+            inputNeurons[0] = new SystemNetwork.Neurons.InputNeuron();
+            inputNeurons[1] = new SystemNetwork.Neurons.InputNeuron();
+            inputNeurons[2] = new SystemNetwork.Neurons.InputNeuron();
+
+            SystemNetwork.Neurons.AverageNeuron[] averageNeurons = new SystemNetwork.Neurons.AverageNeuron[4];
+            averageNeurons[0] = new SystemNetwork.Neurons.AverageNeuron();
+            averageNeurons[1] = new SystemNetwork.Neurons.AverageNeuron();
+            averageNeurons[2] = new SystemNetwork.Neurons.AverageNeuron();
+            averageNeurons[3] = new SystemNetwork.Neurons.AverageNeuron();
+
+            SystemNetwork.Neurons.OutputNeuron[] outputNeurons = new SystemNetwork.Neurons.OutputNeuron[2];
+            outputNeurons[0] = new SystemNetwork.Neurons.OutputNeuron();
+            outputNeurons[1] = new SystemNetwork.Neurons.OutputNeuron();
+
+            SystemNetwork.Bonds.Bond[] bonds = new SystemNetwork.Bonds.Bond[12];
+            bonds[0] = new SystemNetwork.Bonds.Bond(inputNeurons[0], averageNeurons[0], -1);
+            bonds[1] = new SystemNetwork.Bonds.Bond(inputNeurons[0], averageNeurons[1], -1);
+            bonds[2] = new SystemNetwork.Bonds.Bond(inputNeurons[1], averageNeurons[1], -1);
+            bonds[3] = new SystemNetwork.Bonds.Bond(inputNeurons[1], averageNeurons[2], -1);
+            bonds[4] = new SystemNetwork.Bonds.Bond(inputNeurons[2], averageNeurons[2], -1);
+            bonds[5] = new SystemNetwork.Bonds.Bond(inputNeurons[2], averageNeurons[3], -1);
+            bonds[6] = new SystemNetwork.Bonds.Bond(averageNeurons[0], outputNeurons[0], -1);
+            bonds[7] = new SystemNetwork.Bonds.Bond(averageNeurons[1], outputNeurons[0], -1);
+            bonds[8] = new SystemNetwork.Bonds.Bond(averageNeurons[1], outputNeurons[1], -1);
+            bonds[9] = new SystemNetwork.Bonds.Bond(averageNeurons[2], outputNeurons[0], -1);
+            bonds[10] = new SystemNetwork.Bonds.Bond(averageNeurons[2], outputNeurons[1], -0.01);
+            bonds[11] = new SystemNetwork.Bonds.Bond(averageNeurons[3], outputNeurons[1], -1);
+
+            inputNeurons[0].AddOutPutBond(bonds[0]);
+            inputNeurons[0].AddOutPutBond(bonds[1]);
+            inputNeurons[1].AddOutPutBond(bonds[2]);
+            inputNeurons[1].AddOutPutBond(bonds[3]);
+            inputNeurons[2].AddOutPutBond(bonds[4]);
+            inputNeurons[2].AddOutPutBond(bonds[5]);
+
+            averageNeurons[0].AddOutputBond(bonds[6]);
+            averageNeurons[0].AddInputBond(bonds[0]);
+            averageNeurons[1].AddOutputBond(bonds[7]);
+            averageNeurons[1].AddOutputBond(bonds[8]);
+            averageNeurons[1].AddInputBond(bonds[1]);
+            averageNeurons[1].AddInputBond(bonds[2]);
+            averageNeurons[2].AddOutputBond(bonds[9]);
+            averageNeurons[2].AddOutputBond(bonds[10]);
+            averageNeurons[2].AddInputBond(bonds[3]);
+            averageNeurons[2].AddInputBond(bonds[4]);
+            averageNeurons[3].AddOutputBond(bonds[11]);
+            averageNeurons[3].AddInputBond(bonds[5]);
+            outputNeurons[0].AddInputBond(bonds[6]);
+            outputNeurons[0].AddInputBond(bonds[7]);
+            outputNeurons[0].AddInputBond(bonds[9]);
+            outputNeurons[1].AddInputBond(bonds[8]);
+            outputNeurons[1].AddInputBond(bonds[10]);
+            outputNeurons[1].AddInputBond(bonds[11]);
+
+            SystemNetwork.Layers.AverageLayer averageLayer = new SystemNetwork.Layers.AverageLayer(averageNeurons);
+
+            SystemNetwork.Neurons.ActivationFunctions.LogisticFunction function = new SystemNetwork.Neurons.ActivationFunctions.LogisticFunction(2);
+
+            SystemNetwork.Networks.Network network = new SystemNetwork.Networks.Network(function);
+            network.AddInPutNeurons(inputNeurons);
+            network.AddAverageLayer(averageLayer);
+            network.AddOutPutNeurons(outputNeurons);
+            double[] results = network.Start(0, 1, 0.2);
+            foreach (double result in results) MessageBox.Show(result.ToString());
         }
         private void button1_Click(object sender, EventArgs e)
         {
