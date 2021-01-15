@@ -69,6 +69,8 @@
     <Compile Include="SystemNetwork\Layers\InputLayer.cs" />
     <Compile Include="SystemNetwork\Layers\Layer.cs" />
     <Compile Include="SystemNetwork\Layers\OutputLayer.cs" />
+    <Compile Include="SystemNetwork\Networks\LearningMethods\Learning.cs" />
+    <Compile Include="SystemNetwork\Networks\LearningMethods\MOPLearning.cs" />
     <Compile Include="SystemNetwork\Networks\Network.cs" />
     <Compile Include="SystemNetwork\Neurons\ActivationFunctions\ActivationFuncton.cs" />
     <Compile Include="SystemNetwork\Neurons\ActivationFunctions\LogisticFunction.cs" />

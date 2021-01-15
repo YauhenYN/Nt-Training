@@ -48,6 +48,7 @@ namespace Nt_Training
             _drawing.OnDraw += _character.DrawOn;
             timer1.Enabled = true;
 
+            SystemNetwork.Networks.LearningMethods.Learning learning = new SystemNetwork.Networks.LearningMethods.MOPLearning(new double[2] { 0.5, 0.4 }) { SpeedE = 0.2, MomentA = 0.1};
             SystemNetwork.Neurons.InputNeuron[] inputNeurons = new SystemNetwork.Neurons.InputNeuron[3];
             inputNeurons[0] = new SystemNetwork.Neurons.InputNeuron();
             inputNeurons[1] = new SystemNetwork.Neurons.InputNeuron();
@@ -113,6 +114,8 @@ namespace Nt_Training
             network.AddOutPutNeurons(outputNeurons);
             double[] results = network.Start(0, 1, 0.2);
             foreach (double result in results) MessageBox.Show(result.ToString());
+            network.SetTeaching(learning);
+            MessageBox.Show(network.TeachNetwork().ToString());
         }
         private void button1_Click(object sender, EventArgs e)
         {

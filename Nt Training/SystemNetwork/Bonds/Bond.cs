@@ -12,7 +12,7 @@ namespace Nt_Training.SystemNetwork.Bonds
         public Neurons.Neuron InputNeuron { get; }
         public Neurons.Neuron OutputNeuron { get; }
         private double _weigh;
-        public double Weigh { get { return _weigh; } set { if(value >= -1 && value <= 1) _weigh = value; } }
+        public double Weigh { get { return _weigh; } set { _weigh = value; } }
         public Bond(Neurons.Neuron inputNeuron, Neurons.Neuron outputNeuron, double weigh)
         {
             InputNeuron = inputNeuron;

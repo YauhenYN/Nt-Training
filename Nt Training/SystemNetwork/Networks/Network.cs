@@ -13,6 +13,7 @@ namespace Nt_Training.SystemNetwork.Networks
         List<Layers.AverageLayer> _averageLayers;
         Layers.OutputLayer _outputLayer;
         Neurons.ActivationFunctions.ActivationFuncton _activationFunction;
+        public double[] currentResults { get; private set; }
         public Network(Neurons.ActivationFunctions.ActivationFuncton function)
         {
             _activationFunction = function;
@@ -46,7 +47,6 @@ namespace Nt_Training.SystemNetwork.Networks
                     {
                         _averageLayers[step].AverageNeurons[inStep].OutputBonds[bondNumber].Put(activatedFunctionResult);
                     }
-                    _averageLayers[step].AverageNeurons[inStep].ClearValue();
                 }
             }
             for(int step = 0; step < _outputLayer.OutputNeurons.Count; step++)
@@ -54,7 +54,21 @@ namespace Nt_Training.SystemNetwork.Networks
                 _outputLayer.OutputNeurons[step].AdderActivation();
                 resultsOfNetwork[step] = _outputLayer.OutputNeurons[step].ActivateFunction(_activationFunction.Activate);
             }
+            currentResults = resultsOfNetwork;
             return resultsOfNetwork;
         }
+        public void DisposeNeurons()
+        {
+            foreach (Neurons.InputNeuron inputNeuron in _inputLayer.InputNeurons) inputNeuron.ClearValue();
+            foreach (Layers.AverageLayer averageLayer in _averageLayers) foreach (Neurons.AverageNeuron averageNeuron in averageLayer.AverageNeurons) averageNeuron.ClearValue();
+            foreach (Neurons.OutputNeuron outputNeuron in _outputLayer.OutputNeurons) outputNeuron.ClearValue(); 
+        }
+        LearningMethods.Learning _learning;
+        public void SetTeaching(LearningMethods.Learning learning)
+        {
+            _learning = learning;
+            _learning.SetLayers(_inputLayer, _averageLayers.ToArray(), _outputLayer);
+        }
+        public double TeachNetwork() => _learning.Learn(this);
     }
 }
