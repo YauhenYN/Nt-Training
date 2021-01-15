@@ -69,6 +69,6 @@ namespace Nt_Training.SystemNetwork.Networks
             _learning = learning;
             _learning.SetLayers(_inputLayer, _averageLayers.ToArray(), _outputLayer);
         }
-        public double TeachNetwork() => _learning.Learn(this);
+        public double TeachNetwork(params double[] waitingResults) => _learning.Learn(this, waitingResults);
     }
 }

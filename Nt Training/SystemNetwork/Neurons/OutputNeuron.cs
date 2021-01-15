@@ -24,6 +24,6 @@ namespace Nt_Training.SystemNetwork.Neurons
                 Value += bond.PuttingResult;
             }
         }
-        public double ActivateFunction(Func<double, double> activation) => activation(Value);
+        public double ActivateFunction(Func<double, double> activation) => Value = activation(Value);
     }
 }

@@ -48,7 +48,7 @@ namespace Nt_Training
             _drawing.OnDraw += _character.DrawOn;
             timer1.Enabled = true;
 
-            SystemNetwork.Networks.LearningMethods.Learning learning = new SystemNetwork.Networks.LearningMethods.MOPLearning(new double[2] { 0.5, 0.4 }) { SpeedE = 0.2, MomentA = 0.1};
+            SystemNetwork.Networks.LearningMethods.Learning learning = new SystemNetwork.Networks.LearningMethods.MOPLearning() { SpeedE = 1, MomentA = 0.6};
             SystemNetwork.Neurons.InputNeuron[] inputNeurons = new SystemNetwork.Neurons.InputNeuron[3];
             inputNeurons[0] = new SystemNetwork.Neurons.InputNeuron();
             inputNeurons[1] = new SystemNetwork.Neurons.InputNeuron();
@@ -65,18 +65,19 @@ namespace Nt_Training
             outputNeurons[1] = new SystemNetwork.Neurons.OutputNeuron();
 
             SystemNetwork.Bonds.Bond[] bonds = new SystemNetwork.Bonds.Bond[12];
-            bonds[0] = new SystemNetwork.Bonds.Bond(inputNeurons[0], averageNeurons[0], -1);
-            bonds[1] = new SystemNetwork.Bonds.Bond(inputNeurons[0], averageNeurons[1], -1);
-            bonds[2] = new SystemNetwork.Bonds.Bond(inputNeurons[1], averageNeurons[1], -1);
-            bonds[3] = new SystemNetwork.Bonds.Bond(inputNeurons[1], averageNeurons[2], -1);
-            bonds[4] = new SystemNetwork.Bonds.Bond(inputNeurons[2], averageNeurons[2], -1);
-            bonds[5] = new SystemNetwork.Bonds.Bond(inputNeurons[2], averageNeurons[3], -1);
-            bonds[6] = new SystemNetwork.Bonds.Bond(averageNeurons[0], outputNeurons[0], -1);
-            bonds[7] = new SystemNetwork.Bonds.Bond(averageNeurons[1], outputNeurons[0], -1);
-            bonds[8] = new SystemNetwork.Bonds.Bond(averageNeurons[1], outputNeurons[1], -1);
-            bonds[9] = new SystemNetwork.Bonds.Bond(averageNeurons[2], outputNeurons[0], -1);
-            bonds[10] = new SystemNetwork.Bonds.Bond(averageNeurons[2], outputNeurons[1], -0.01);
-            bonds[11] = new SystemNetwork.Bonds.Bond(averageNeurons[3], outputNeurons[1], -1);
+            Random rand = new Random();
+            bonds[0] = new SystemNetwork.Bonds.Bond(inputNeurons[0], averageNeurons[0], 0.90);
+            bonds[1] = new SystemNetwork.Bonds.Bond(inputNeurons[0], averageNeurons[1], 0.534);
+            bonds[2] = new SystemNetwork.Bonds.Bond(inputNeurons[1], averageNeurons[1], 0.29);
+            bonds[3] = new SystemNetwork.Bonds.Bond(inputNeurons[1], averageNeurons[2], -0.48);
+            bonds[4] = new SystemNetwork.Bonds.Bond(inputNeurons[2], averageNeurons[2], -0.11);
+            bonds[5] = new SystemNetwork.Bonds.Bond(inputNeurons[2], averageNeurons[3], 0.9);
+            bonds[6] = new SystemNetwork.Bonds.Bond(averageNeurons[0], outputNeurons[0], -0.8);
+            bonds[7] = new SystemNetwork.Bonds.Bond(averageNeurons[1], outputNeurons[0], 0.5);
+            bonds[8] = new SystemNetwork.Bonds.Bond(averageNeurons[1], outputNeurons[1], 0.65);
+            bonds[9] = new SystemNetwork.Bonds.Bond(averageNeurons[2], outputNeurons[0], 0.24);
+            bonds[10] = new SystemNetwork.Bonds.Bond(averageNeurons[2], outputNeurons[1], 0.116);
+            bonds[11] = new SystemNetwork.Bonds.Bond(averageNeurons[3], outputNeurons[1], -0.98);
 
             inputNeurons[0].AddOutPutBond(bonds[0]);
             inputNeurons[0].AddOutPutBond(bonds[1]);
@@ -112,10 +113,14 @@ namespace Nt_Training
             network.AddInPutNeurons(inputNeurons);
             network.AddAverageLayer(averageLayer);
             network.AddOutPutNeurons(outputNeurons);
-            double[] results = network.Start(0, 1, 0.2);
-            foreach (double result in results) MessageBox.Show(result.ToString());
             network.SetTeaching(learning);
-            MessageBox.Show(network.TeachNetwork().ToString());
+            for (int step = 0; step < 10; step++)
+            {
+                double[] results = network.Start(0, 1, 0.2);
+                foreach (double result in results) MessageBox.Show(result.ToString() + " result");
+                MessageBox.Show(network.TeachNetwork(0.4, 0.5).ToString());
+                network.DisposeNeurons();
+            }
         }
         private void button1_Click(object sender, EventArgs e)
         {

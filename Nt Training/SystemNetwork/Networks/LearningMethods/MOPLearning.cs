@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Nt_Training.SystemNetwork.Networks.LearningMethods
 {
@@ -37,12 +38,11 @@ namespace Nt_Training.SystemNetwork.Networks.LearningMethods
                 this.bond = bond;
             }
         }
-        public MOPLearning(double[] waitingResults) => _waitingResults = waitingResults;
         private double[] _waitingResults;
         private List<List<DeltaNeuron>> _deltaNeurons;
         public override void SetLayers(Layers.InputLayer inputLayer, Layers.AverageLayer[] averageLayers, Layers.OutputLayer outputLayer)
         {
-            _deltaNeurons = new List<List<DeltaNeuron>>(); //ТУТ НЕТ ДОБАВЛЕНИЯ
+            _deltaNeurons = new List<List<DeltaNeuron>>();
             _deltaNeurons.Add(new List<DeltaNeuron>());
             for (int step = 0; step < inputLayer.InputNeurons.Count; step++) _deltaNeurons[0].Add(new DeltaNeuron(0, inputLayer.InputNeurons[step], inputLayer.InputNeurons[step].OutPutBonds));
             for(int step = 0; step < averageLayers.Length; step++)
@@ -54,8 +54,9 @@ namespace Nt_Training.SystemNetwork.Networks.LearningMethods
             _deltaNeurons.Add(new List<DeltaNeuron>());
             for (int step = 0; step < outputLayer.OutputNeurons.Count; step++) _deltaNeurons[lastNumber].Add(new DeltaNeuron(0, outputLayer.OutputNeurons[step]));
         }
-        public override double Learn(Network network)
+        public override double Learn(Network network, params double[] waitingResults)
         {
+            _waitingResults = waitingResults;
             double errorCount = MSEError(network.currentResults);
             ErrorCount = errorCount;
             for(int step = 0; step < _deltaNeurons[_deltaNeurons.Count-1].Count; step++) _deltaNeurons[_deltaNeurons.Count-1][step].delta = (_waitingResults[step] - network.currentResults[step]) * Fsigmoid(network.currentResults[step]);
@@ -112,11 +113,11 @@ namespace Nt_Training.SystemNetwork.Networks.LearningMethods
         public double MSEError(params double[] currentResults)
         {
             double sum = 0;
-            for(int step = 0; step < _waitingResults.Length; step++)
+            for(int step = 0; step < currentResults.Length; step++)
             {
                 sum += Math.Pow(_waitingResults[step] - currentResults[step], 2);
             }
-            return sum / _waitingResults.Length;
+            return sum / currentResults.Length;
         }
         public double RootMSEError(params double[] currentResults) => Math.Sqrt(MSEError(currentResults));
         public double ArctanError(params double[] currentResults)
