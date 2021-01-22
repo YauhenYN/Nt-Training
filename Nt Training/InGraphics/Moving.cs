@@ -12,12 +12,12 @@ namespace Nt_Training.InGraphics
     {
         public enum Direction
         {
-            down = 1,
-            left,
-            top,
-            right
+            downright,
+            downleft,
+            topleft,
+            topright
         }
-        public class EntireAngle
+        private class EntireAngle
         {
             public class Angle
             {
@@ -29,7 +29,7 @@ namespace Nt_Training.InGraphics
                 {
                     _remainder = degrees / divider;
                     _neededCellValue = _remainder;
-                } //ПРОБЛЕМА В ТОМ, ЧТО НЕ МЕНЕТ НАПРАВЛЕНИЕ - +, -
+                }
                 public Angle(int degrees)
                 {
                     AngleDegrees = degrees;
@@ -49,17 +49,17 @@ namespace Nt_Training.InGraphics
                 double divider = 90 / speed;
                 leftAngle = new Angle(leftAngleDegrees, divider);
                 rightAngle = new Angle(90 - leftAngleDegrees, divider);
-                if(direction == Direction.down) //НУЖНО ПЕРЕДЕЛАТЬ БЕЗ IF
+                if(direction == Direction.downright) //НУЖНО УБРАТЬ IF
                 {
                     xVector = 1;
                     yVector = 1;
                 }
-                else if (direction == Direction.left)
+                else if (direction == Direction.downleft)
                 {
                     xVector = -1;
                     yVector = 1;
                 }
-                else if(direction == Direction.top)
+                else if(direction == Direction.topleft)
                 {
                     xVector = -1;
                     yVector = -1;
@@ -78,7 +78,7 @@ namespace Nt_Training.InGraphics
         public Moving() { }
         EntireAngle _entireAngle;
         public void SetCommonDegree()
-        {        //commonDegrees - НЕТ БЕЗОПАСНОСТИ, НУЖНО ХОТЯ-БЫ СОЗДАТЬ ОТДЕЛЬНЫЙ ТИП С УГЛОМ
+        {        //commonDegrees - НЕТ БЕЗОПАСНОСТИ ЗНАЧЕНИЙ, НУЖНО ХОТЯ-БЫ СОЗДАТЬ ОТДЕЛЬНЫЙ ТИП С УГЛОМ
             _entireAngle = new EntireAngle();
         }
         public void ChangeDirection(int leftAnglesDegrees, Direction direction, double speed)

@@ -75,5 +75,32 @@ namespace Nt_Training.InGraphics.StandardDrawingElements
                     }
             }
         }
+        public bool[,] getAreaMap(Rectangle localArea)
+        {
+            Bitmap bitmap = new Bitmap(_map.GetLength(1) * _blockPX, _map.GetLength(0) * _blockPX);
+            DrawOn(bitmap);
+            bool[,] map = new bool[localArea.Height, localArea.Width];
+            for(int step = 0; step < map.GetLength(0); step++)
+            {
+                for(int inStep = 0; inStep < map.GetLength(1); inStep++)
+                { //НЕТ X И Y ОТКУДА НАЧИНАТЬ
+                    //MessageBox.Show(bitmap.GetPixel(localArea.Width + step, localArea.Height + inStep).ToArgb().ToString());
+                    if (bitmap.GetPixel(localArea.Y + inStep, localArea.X + step) != Color.FromArgb(0)) map[step, inStep] = true;
+                }
+            } //ПРОВЕРИТЬ
+            bitmap.Dispose();
+            return map;
+        }
+        public void ReturnToStart()
+        {
+            for (int step = 0; step < _map.GetLength(0); step++)
+            {
+                for (int inStep = 0; inStep < _map.GetLength(1); inStep++)
+                {
+                    _map[step, inStep].Y = _blockPX * step;
+                    _map[step, inStep].X = _blockPX * inStep;
+                }
+            }
+        }
     }
 }

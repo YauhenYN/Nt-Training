@@ -55,7 +55,7 @@ namespace Nt_Training.SystemNetwork.Networks
                 resultsOfNetwork[step] = _outputLayer.OutputNeurons[step].ActivateFunction(_activationFunction.Activate);
             }
             currentResults = resultsOfNetwork;
-            return resultsOfNetwork;
+            return (double[])resultsOfNetwork.Clone();
         }
         public void DisposeNeurons()
         {
