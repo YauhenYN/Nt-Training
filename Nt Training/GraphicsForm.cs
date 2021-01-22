@@ -35,13 +35,15 @@ namespace Nt_Training
             locationOfObject.Y = 200;
             _map = new InGraphics.StandardDrawingElements.Square2DMap(Color.Gray, 45, 45, 15);
             _map.SetCommonDegree();
-            _direction = InGraphics.Moving.MoveTo.left;
             _character = new InGraphics.StandardDrawingElements.SquareElement(Color.Blue, locationOfObject.X, locationOfObject.Y, 30);
             for(int step = 0; step < 40; step++)
             {
-                if(step < 25)_map.setBlock(0, step);
-                _map.setBlock(8, step);
-                _map.setBlock(16, step);
+                if (step < 25)
+                {
+                    _map.setBlock(0, step);
+                    _map.setBlock(8, step);
+                }
+                //_map.setBlock(16, step);
                 _map.setBlock(24, step);
                 _map.setBlock(32, step);
                 _map.setBlock(step, 40);
@@ -54,7 +56,7 @@ namespace Nt_Training
             _drawing.OnDraw += _character.DrawOn;
             timer1.Enabled = true;
 
-            SystemNetwork.Networks.LearningMethods.Learning learning = new SystemNetwork.Networks.LearningMethods.MOPLearning() { SpeedE = 0.8, MomentA = 0.4};
+            SystemNetwork.Networks.LearningMethods.Learning learning = new SystemNetwork.Networks.LearningMethods.MOPLearning() { SpeedE = 0.3, MomentA = 0.4};
             SystemNetwork.Neurons.InputNeuron[] inputNeurons = new SystemNetwork.Neurons.InputNeuron[4];
             for (int step = 0; step < inputNeurons.Length; step++) inputNeurons[step] = new SystemNetwork.Neurons.InputNeuron();
 
@@ -73,17 +75,17 @@ namespace Nt_Training
             {
                 foreach(SystemNetwork.Neurons.AverageNeuron averageNeuron in averageNeurons)
                 {
-                    bonds.Add(new SystemNetwork.Bonds.Bond(inputNeuron, averageNeuron, Convert.ToDouble(rand.Next(-100, 100)) / 100));
+                    bonds.Add(new SystemNetwork.Bonds.Bond(inputNeuron, averageNeuron, Convert.ToDouble(rand.Next(-50, 50)) / 100));
                     inputNeuron.AddOutPutBond(bonds.Last());
                     averageNeuron.AddInputBond(bonds.Last());
                     foreach (SystemNetwork.Neurons.AverageNeuron averageNeuron1 in averageNeurons1)
                     {
-                        bonds.Add(new SystemNetwork.Bonds.Bond(averageNeuron, averageNeuron1, Convert.ToDouble(rand.Next(-100, 100)) / 100));
+                        bonds.Add(new SystemNetwork.Bonds.Bond(averageNeuron, averageNeuron1, Convert.ToDouble(rand.Next(-50, 50)) / 100));
                         averageNeuron.AddOutputBond(bonds.Last());
                         averageNeuron1.AddInputBond(bonds.Last());
                         foreach (SystemNetwork.Neurons.OutputNeuron outputNeuron in outputNeurons)
                         {
-                            bonds.Add(new SystemNetwork.Bonds.Bond(averageNeuron1, outputNeuron, Convert.ToDouble(rand.Next(-100, 100)) / 100));
+                            bonds.Add(new SystemNetwork.Bonds.Bond(averageNeuron1, outputNeuron, Convert.ToDouble(rand.Next(-50, 50)) / 100));
                             averageNeuron1.AddOutputBond(bonds.Last());
                             outputNeuron.AddInputBond(bonds.Last());
                         }
@@ -94,7 +96,7 @@ namespace Nt_Training
             SystemNetwork.Layers.AverageLayer averageLayer = new SystemNetwork.Layers.AverageLayer(averageNeurons);
             SystemNetwork.Layers.AverageLayer averageLayer1 = new SystemNetwork.Layers.AverageLayer(averageNeurons1);
 
-            SystemNetwork.Neurons.ActivationFunctions.LogisticFunction function = new SystemNetwork.Neurons.ActivationFunctions.LogisticFunction(0.5);
+            SystemNetwork.Neurons.ActivationFunctions.LogisticFunction function = new SystemNetwork.Neurons.ActivationFunctions.LogisticFunction(2);
 
             _network = new SystemNetwork.Networks.Network(function);
             _network.AddInPutNeurons(inputNeurons);
@@ -112,7 +114,7 @@ namespace Nt_Training
         private InGraphics.Moving.MoveTo[] _mirroredDirections = { InGraphics.Moving.MoveTo.down, InGraphics.Moving.MoveTo.top, InGraphics.Moving.MoveTo.right, InGraphics.Moving.MoveTo.left };
         private void timer1_Tick(object sender, EventArgs e)
         {
-            _map.MoveOn(1, _direction);
+            _map.MoveOn(1, _mirroredDirections[(int)_direction]);
             _drawing.Draw();
             _drawing.DisposeBuffer();
             _drawing.RefreshBuffer();
@@ -120,24 +122,28 @@ namespace Nt_Training
             if (count % 25 == 0) {
                 bool[,] map = _map.getAreaMap(new Rectangle(0, 0, locationOfObject.X * 2, locationOfObject.X * 2));
                 Point location = new Point(locationOfObject.X, locationOfObject.Y);
-                int topDistance = FindObstacle(map, location, InGraphics.Moving.Direction.topleft, 90);
-                int downDistance = FindObstacle(map, location, InGraphics.Moving.Direction.downright, 90);
-                int leftDistance = FindObstacle(map, location, InGraphics.Moving.Direction.downleft, 0);
-                int rightDistance = FindObstacle(map, location, InGraphics.Moving.Direction.downright, 0);
+                int topDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.top);
+                int downDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.down);
+                int leftDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.left);
+                int rightDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.right);
                 double[] results = _network.Start((double)topDistance / 200, (double)downDistance / 200, (double)leftDistance / 200, (double)rightDistance / 200);
-                _direction = _mirroredDirections[(int)IntoDirection(results)];
-                if ((topDistance > 0 && topDistance < 30) || (rightDistance > 0 && rightDistance < 30) || (downDistance > 0 && downDistance < 30) || (leftDistance > 0 && leftDistance < 30))
+                _direction = IntoDirection(results);
+                double[] distances = { topDistance, downDistance, leftDistance, rightDistance };
+                if (distances[(int)_direction] < 30 && distances[(int)_direction] != 0)
                 {
-                    int indexOfMax = (int)IntoDirection(new double[] { topDistance, downDistance, leftDistance, rightDistance });
+                    int indexOfMax = (int)IntoDirection(distances);
                     double[] copying = (double[])results.Clone();
-                    for (int step = 0; step < copying.Length; step++) copying[step] = 0;
+                    //for (int step = 0; step < copying.Length; step++) copying[step] = 0;
+                    copying[(int)_direction] = 0;
                     copying[indexOfMax] = 1;
                     _network.TeachNetwork(copying);
                     _map.ReturnToStart();
+                    //MessageBox.Show(_direction.ToString());
+                    //MessageBox.Show(distances[(int)_direction].ToString());
                     //MessageBox.Show(indexOfMax.ToString());
                     //MessageBox.Show(copying[0] + " " + copying[1] + " " + copying[2] + " " + copying[3]);
                     //MessageBox.Show(topDistance + " " + downDistance + " " + leftDistance + " " + rightDistance);
-                    MessageBox.Show(results[0].ToString() + " " + results[1].ToString() + " " + results[2].ToString() + " " + results[3].ToString());
+                    //MessageBox.Show(results[0].ToString() + " " + results[1].ToString() + " " + results[2].ToString() + " " + results[3].ToString());
                 }
                 _network.DisposeNeurons();
             }
@@ -173,6 +179,38 @@ namespace Nt_Training
             {
                 count++;
                 if (map[Convert.ToInt32(xBuffer), Convert.ToInt32(yBuffer)]) return count;
+            }
+            return 0;
+        }
+        public int FindObstacle(bool[,] map, Point position, int length, InGraphics.Moving.MoveTo direction)
+        {
+            int count = 0, xSum = 0, ySum = 0;
+            if (direction == InGraphics.Moving.MoveTo.down)
+            {
+                ySum = 1;
+                position.Y += length;
+            }
+            else if(direction == InGraphics.Moving.MoveTo.left)
+            {
+                xSum = -1;
+            }
+            else if(direction == InGraphics.Moving.MoveTo.right)
+            {
+                xSum = 1;
+                position.X += length;
+            }
+            else
+            {
+                ySum = -1;
+            }
+            for (int step = 0; step < length; step++)
+            {
+                for(int xBuffer = position.X, yBuffer = position.Y; yBuffer + (step * Math.Abs(xSum)) < map.GetLength(0) && yBuffer + (step * Math.Abs(xSum)) >= 0 && xBuffer + (step * Math.Abs(ySum)) < map.GetLength(1) && xBuffer + (step * Math.Abs(ySum)) >= 0; xBuffer += xSum, yBuffer += ySum)
+                {
+                    count++;
+                    if (map[yBuffer + (step * Math.Abs(xSum)), xBuffer + (step * Math.Abs(ySum))]) return count;
+                }
+                count = 0;
             }
             return 0;
         }
