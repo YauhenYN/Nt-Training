@@ -40,7 +40,7 @@ namespace Nt_Training.SystemNetwork.Networks.LearningMethods
         }
         private double[] _waitingResults;
         private List<List<DeltaNeuron>> _deltaNeurons;
-        public override void SetLayers(Layers.InputLayer inputLayer, Layers.AverageLayer[] averageLayers, Layers.OutputLayer outputLayer)
+        public override void SetLayers(Layers.InputLayer inputLayer, Layers.HiddenLayer[] averageLayers, Layers.OutputLayer outputLayer)
         {
             _deltaNeurons = new List<List<DeltaNeuron>>();
             _deltaNeurons.Add(new List<DeltaNeuron>());

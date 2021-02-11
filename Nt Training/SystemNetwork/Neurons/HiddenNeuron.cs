@@ -7,9 +7,9 @@ using System.Windows.Forms;
 
 namespace Nt_Training.SystemNetwork.Neurons
 {
-    public class AverageNeuron : Neuron
+    public class HiddenNeuron : Neuron
     {
-        public AverageNeuron()
+        public HiddenNeuron()
         {
             _outputBonds = new List<Bonds.Bond>();
             _inputBonds = new List<Bonds.Bond>();

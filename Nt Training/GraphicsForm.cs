@@ -25,7 +25,7 @@ namespace Nt_Training
         }
         InGraphics.Drawing _drawing;
         InGraphics.StandardDrawingElements.Square2DMap _map;
-        InGraphics.StandardDrawingElements.SquareElement _character;
+        InGraphics._2D.SimpleGElement<InGraphics._2D.StandardDrawingElements.GRectangle> _character;
         Point locationOfObject;
         SystemNetwork.Networks.Network _network;
         InGraphics.Moving.MoveTo _direction;
@@ -35,7 +35,7 @@ namespace Nt_Training
             locationOfObject.Y = 200;
             _map = new InGraphics.StandardDrawingElements.Square2DMap(Color.Gray, 45, 45, 15);
             _map.SetCommonDegree();
-            _character = new InGraphics.StandardDrawingElements.SquareElement(Color.Blue, locationOfObject.X, locationOfObject.Y, 30);
+            _character = new InGraphics._2D.SimpleGElement<InGraphics._2D.StandardDrawingElements.GRectangle>(new InGraphics._2D.StandardDrawingElements.GRectangle(new Rectangle(locationOfObject.X, locationOfObject.Y, 30, 30), Color.Blue));
             for(int step = 0; step < 40; step++)
             {
                 if (step < 25)
@@ -53,18 +53,18 @@ namespace Nt_Training
 
             _drawing = new InGraphics.Drawing().SetBuffer(panelForDrawing, Color.White);
             _drawing.OnDraw += _map.DrawOn;
-            _drawing.OnDraw += _character.DrawOn;
+            _drawing.OnDraw += _character.FillOn;
             timer1.Enabled = true;
 
             SystemNetwork.Networks.LearningMethods.Learning learning = new SystemNetwork.Networks.LearningMethods.MOPLearning() { SpeedE = 0.3, MomentA = 0.4};
             SystemNetwork.Neurons.InputNeuron[] inputNeurons = new SystemNetwork.Neurons.InputNeuron[4];
             for (int step = 0; step < inputNeurons.Length; step++) inputNeurons[step] = new SystemNetwork.Neurons.InputNeuron();
 
-            SystemNetwork.Neurons.AverageNeuron[] averageNeurons = new SystemNetwork.Neurons.AverageNeuron[8];
-            for (int step = 0; step < averageNeurons.Length; step++) averageNeurons[step] = new SystemNetwork.Neurons.AverageNeuron();
+            SystemNetwork.Neurons.HiddenNeuron[] averageNeurons = new SystemNetwork.Neurons.HiddenNeuron[8];
+            for (int step = 0; step < averageNeurons.Length; step++) averageNeurons[step] = new SystemNetwork.Neurons.HiddenNeuron();
 
-            SystemNetwork.Neurons.AverageNeuron[] averageNeurons1 = new SystemNetwork.Neurons.AverageNeuron[8];
-            for (int step = 0; step < averageNeurons1.Length; step++) averageNeurons1[step] = new SystemNetwork.Neurons.AverageNeuron();
+            SystemNetwork.Neurons.HiddenNeuron[] averageNeurons1 = new SystemNetwork.Neurons.HiddenNeuron[8];
+            for (int step = 0; step < averageNeurons1.Length; step++) averageNeurons1[step] = new SystemNetwork.Neurons.HiddenNeuron();
 
             SystemNetwork.Neurons.OutputNeuron[] outputNeurons = new SystemNetwork.Neurons.OutputNeuron[4];
             for (int step = 0; step < outputNeurons.Length; step++) outputNeurons[step] = new SystemNetwork.Neurons.OutputNeuron();
@@ -73,12 +73,12 @@ namespace Nt_Training
             Random rand = new Random();
             foreach(SystemNetwork.Neurons.InputNeuron inputNeuron in inputNeurons)
             {
-                foreach(SystemNetwork.Neurons.AverageNeuron averageNeuron in averageNeurons)
+                foreach(SystemNetwork.Neurons.HiddenNeuron averageNeuron in averageNeurons)
                 {
                     bonds.Add(new SystemNetwork.Bonds.Bond(inputNeuron, averageNeuron, Convert.ToDouble(rand.Next(-50, 50)) / 100));
                     inputNeuron.AddOutPutBond(bonds.Last());
                     averageNeuron.AddInputBond(bonds.Last());
-                    foreach (SystemNetwork.Neurons.AverageNeuron averageNeuron1 in averageNeurons1)
+                    foreach (SystemNetwork.Neurons.HiddenNeuron averageNeuron1 in averageNeurons1)
                     {
                         bonds.Add(new SystemNetwork.Bonds.Bond(averageNeuron, averageNeuron1, Convert.ToDouble(rand.Next(-50, 50)) / 100));
                         averageNeuron.AddOutputBond(bonds.Last());
@@ -93,8 +93,8 @@ namespace Nt_Training
                 }
             }
 
-            SystemNetwork.Layers.AverageLayer averageLayer = new SystemNetwork.Layers.AverageLayer(averageNeurons);
-            SystemNetwork.Layers.AverageLayer averageLayer1 = new SystemNetwork.Layers.AverageLayer(averageNeurons1);
+            SystemNetwork.Layers.HiddenLayer averageLayer = new SystemNetwork.Layers.HiddenLayer(averageNeurons);
+            SystemNetwork.Layers.HiddenLayer averageLayer1 = new SystemNetwork.Layers.HiddenLayer(averageNeurons1);
 
             SystemNetwork.Neurons.ActivationFunctions.LogisticFunction function = new SystemNetwork.Neurons.ActivationFunctions.LogisticFunction(2);
 
@@ -118,7 +118,7 @@ namespace Nt_Training
             _drawing.Draw();
             _drawing.DisposeBuffer();
             _drawing.RefreshBuffer();
-            // РАССТОЯНИЕ(0-1)[4] - НАПРАВЛЕНИЕ(0.25, 0.5, 0.75, 1) - ГРАДУСЫ(0-0.9)
+            // РАССТОЯНИЕ(0-1)[4]
             if (count % 25 == 0) {
                 bool[,] map = _map.getAreaMap(new Rectangle(0, 0, locationOfObject.X * 2, locationOfObject.X * 2));
                 Point location = new Point(locationOfObject.X, locationOfObject.Y);
@@ -143,7 +143,7 @@ namespace Nt_Training
                     //MessageBox.Show(indexOfMax.ToString());
                     //MessageBox.Show(copying[0] + " " + copying[1] + " " + copying[2] + " " + copying[3]);
                     //MessageBox.Show(topDistance + " " + downDistance + " " + leftDistance + " " + rightDistance);
-                    //MessageBox.Show(results[0].ToString() + " " + results[1].ToString() + " " + results[2].ToString() + " " + results[3].ToString());
+                    MessageBox.Show(results[0].ToString() + " " + results[1].ToString() + " " + results[2].ToString() + " " + results[3].ToString());
                 }
                 _network.DisposeNeurons();
             }

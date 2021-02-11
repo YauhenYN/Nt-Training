@@ -94,8 +94,6 @@ namespace Nt_Training.InGraphics
             left,
             right
         }
-        public abstract void DrawOn(Bitmap imageBuffer);
-        public abstract void MoveOn(int px, MoveTo WhereToMove);
         protected abstract class MovingToSide
         {
             public abstract Rectangle AddToSide(Rectangle rectangle, int px);

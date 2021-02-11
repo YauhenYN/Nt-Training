@@ -9,6 +9,6 @@ namespace Nt_Training.SystemNetwork.Networks.LearningMethods
     public abstract class Learning
     {
         public abstract double Learn(Network network, params double[] waitingResults);
-        public abstract void SetLayers(Layers.InputLayer inputLayer, Layers.AverageLayer[] averageLayer, Layers.OutputLayer outputLayer);
+        public abstract void SetLayers(Layers.InputLayer inputLayer, Layers.HiddenLayer[] averageLayer, Layers.OutputLayer outputLayer);
     }
 }

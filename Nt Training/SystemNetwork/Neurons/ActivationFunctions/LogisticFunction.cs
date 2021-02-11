@@ -11,6 +11,6 @@ namespace Nt_Training.SystemNetwork.Neurons.ActivationFunctions
     {
         double _a;
         public LogisticFunction(double a) => _a = a;
-        public override double Activate(double inPutValue) {double msg = 1 / (1 + Math.Exp(-_a * inPutValue)); /*MessageBox.Show(inPutValue.ToString());*/ return msg; }
+        public override double Activate(double inPutValue) => 1 / (1 + Math.Exp(-_a * inPutValue)); 
     }
 }

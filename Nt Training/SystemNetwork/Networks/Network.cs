@@ -10,7 +10,7 @@ namespace Nt_Training.SystemNetwork.Networks
     public class Network
     {
         Layers.InputLayer _inputLayer;
-        List<Layers.AverageLayer> _averageLayers;
+        List<Layers.HiddenLayer> _averageLayers;
         Layers.OutputLayer _outputLayer;
         Neurons.ActivationFunctions.ActivationFuncton _activationFunction;
         public double[] currentResults { get; private set; }
@@ -18,12 +18,12 @@ namespace Nt_Training.SystemNetwork.Networks
         {
             _activationFunction = function;
             _inputLayer = new Layers.InputLayer();
-            _averageLayers = new List<Layers.AverageLayer>();
+            _averageLayers = new List<Layers.HiddenLayer>();
             _outputLayer = new Layers.OutputLayer();
         }
         public void AddInPutNeurons(params Neurons.InputNeuron[] inputNeurons) => _inputLayer.InputNeurons.AddRange(inputNeurons);
         public void AddInPutNeurons(Layers.InputLayer inputLayer) => _inputLayer = inputLayer;
-        public void AddAverageLayer(Layers.AverageLayer averageLayer) => _averageLayers.Add(averageLayer);
+        public void AddAverageLayer(Layers.HiddenLayer averageLayer) => _averageLayers.Add(averageLayer);
         public void AddOutPutNeurons(params Neurons.OutputNeuron[] outputNeurons) => _outputLayer.OutputNeurons.AddRange(outputNeurons);
         public void AddOutPutNeurons(Layers.OutputLayer outputLayer) => _outputLayer = outputLayer;
         public double[] Start(params double[] entranceData)
@@ -60,7 +60,7 @@ namespace Nt_Training.SystemNetwork.Networks
         public void DisposeNeurons()
         {
             foreach (Neurons.InputNeuron inputNeuron in _inputLayer.InputNeurons) inputNeuron.ClearValue();
-            foreach (Layers.AverageLayer averageLayer in _averageLayers) foreach (Neurons.AverageNeuron averageNeuron in averageLayer.AverageNeurons) averageNeuron.ClearValue();
+            foreach (Layers.HiddenLayer averageLayer in _averageLayers) foreach (Neurons.HiddenNeuron averageNeuron in averageLayer.AverageNeurons) averageNeuron.ClearValue();
             foreach (Neurons.OutputNeuron outputNeuron in _outputLayer.OutputNeurons) outputNeuron.ClearValue(); 
         }
         LearningMethods.Learning _learning;
