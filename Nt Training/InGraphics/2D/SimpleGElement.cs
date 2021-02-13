@@ -4,16 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
+using System.Windows.Forms;
 
 namespace Nt_Training.InGraphics._2D
 {
-    public enum Direction
-    {
-        downright,
-        downleft,
-        topleft,
-        topright
-    }
     public interface IDraw
     {
         public void Draw(Bitmap imageBuffer);
@@ -27,21 +21,31 @@ namespace Nt_Training.InGraphics._2D
         public void MoveOn(int px, Moving.MoveTo whereToMove);
         public void MoveByDegrees(Point addingPoint);
     }
-    public class SimpleGElement<T> : Moving where T : IDraw, IFill, IMoving
+    public interface IFigureParameters
     {
-        private T _startingElement;
+        public int X { get; set; }
+        public int Y { get; set; }
+        public int Heigh { get; set; }
+        public int Width { get; set; }
+    }
+    public class SimpleGElement<T> : Moving, IFigureParameters where T : IDraw, IFill, IMoving, IFigureParameters
+    {
+        private Rectangle _startingParameters;
         public T Element { get; private set; }
         public SimpleGElement(T element)
         {
             Element = element;
-            _startingElement = element;
         }
+        public void FixPosition() => _startingParameters = new Rectangle(Element.X, Element.Y, Element.Width, Element.Heigh);
         public virtual void DrawOn(Bitmap imageBuffer) => Element.Draw(imageBuffer);
         public virtual void FillOn(Bitmap imageBuffer) => Element.Fill(imageBuffer);
-        public virtual void MoveOn(int px, Moving.MoveTo whereToMove) => Element.MoveOn(px, whereToMove);
+        public virtual void MoveOn(int px, Moving.MoveTo whereToMove)
+        {
+            Element.MoveOn(px, whereToMove);
+        }
         public virtual void MoveByDegrees()
         {
-            Point addingPoint = GetNextCell();
+            Point addingPoint = GetAddingPoint();
             Element.MoveByDegrees(addingPoint);
         }
         /// <summary>
@@ -51,6 +55,16 @@ namespace Nt_Training.InGraphics._2D
         {
             Element.MoveByDegrees(addingPoint);
         }
-        public void ReturnToStart() => Element = _startingElement;
+        public int X { get => Element.X; set => Element.X = value; }
+        public int Y { get => Element.Y; set => Element.Y = value; }
+        public int Heigh { get => Element.Heigh; set => Element.Heigh = value; }
+        public int Width { get => Element.Width; set => Element.Width = value; }
+        public void ReturnToStart()
+        {
+            Element.X = _startingParameters.X;
+            Element.Y = _startingParameters.Y;
+            Element.Heigh = _startingParameters.Height;
+            Element.Width = _startingParameters.Width;
+        }
     }
 }

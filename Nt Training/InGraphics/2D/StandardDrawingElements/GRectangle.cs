@@ -7,9 +7,14 @@ using System.Drawing;
 
 namespace Nt_Training.InGraphics._2D.StandardDrawingElements
 {
-    public class GRectangle : Moving, IDraw, IFill, IMoving // ИЗМЕНИТЬ MOVING
+    public class GRectangle : Moving, IDraw, IFill, IMoving, IFigureParameters // ИЗМЕНИТЬ MOVING
     {
         public Rectangle Rectangle { get; private set; }
+        public int X { get => Rectangle.X; set => Rectangle = new Rectangle(value, Y, Width, Heigh); }
+        public int Y { get => Rectangle.Y; set => Rectangle = new Rectangle(X, value, Width, Heigh); }
+        public int Heigh { get => Rectangle.Height; set => Rectangle = new Rectangle(X, Y, Width, value); }
+        public int Width { get => Rectangle.Width; set => Rectangle = new Rectangle(X, Y, value, Heigh); }
+
         private Color _color;
         public GRectangle(Rectangle rectangle, Color color)
         {
@@ -32,7 +37,7 @@ namespace Nt_Training.InGraphics._2D.StandardDrawingElements
                 graphics.FillRectangle(b, Rectangle);
             }
         }
-        public override void MoveOn(int px, MoveTo whereToMove) => Rectangle = sides[(int)whereToMove].AddToSide(Rectangle, px);
+        public void MoveOn(int px, MoveTo whereToMove) => Rectangle = sides[(int)whereToMove].AddToSide(Rectangle, px);
 
         public void MoveByDegrees(Point addingPoint) => Rectangle = new Rectangle(Rectangle.X + addingPoint.X, Rectangle.Y + addingPoint.Y, Rectangle.Width, Rectangle.Height);
     }

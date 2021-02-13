@@ -17,7 +17,7 @@ namespace Nt_Training.InGraphics
             topleft,
             topright
         }
-        private class EntireAngle
+        private class EntireAngle //Лучше бы переделать в обычную очередь
         {
             public class Angle
             {
@@ -85,7 +85,7 @@ namespace Nt_Training.InGraphics
         {
             _entireAngle.setAnglesValue(leftAnglesDegrees, direction, speed);
         }
-        protected Point GetNextCell() => _entireAngle != null ? _entireAngle.getNextPoint() : new Point(0, 0);
+        protected Point GetAddingPoint() => _entireAngle != null ? _entireAngle.getNextPoint() : new Point(0, 0);
         protected static MovingToSide[] sides { get; } = { new MovingUp(), new MovingDown(), new MovingToLeft(), new MovingToRight() };
         public enum MoveTo
         {

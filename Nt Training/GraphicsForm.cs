@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Threading;
+using Nt_Training.InGraphics._2D;
+using Nt_Training.InGraphics._2D.StandardDrawingElements;
 namespace Nt_Training
 {
     public partial class GraphicsForm : Form
@@ -24,8 +26,8 @@ namespace Nt_Training
             Application.Exit();
         }
         InGraphics.Drawing _drawing;
-        InGraphics.StandardDrawingElements.Square2DMap _map;
-        InGraphics._2D.SimpleGElement<InGraphics._2D.StandardDrawingElements.GRectangle> _character;
+        SimpleGMap<GRectangle> _map;
+        SimpleGElement<GRectangle> _character;
         Point locationOfObject;
         SystemNetwork.Networks.Network _network;
         InGraphics.Moving.MoveTo _direction;
@@ -33,26 +35,25 @@ namespace Nt_Training
         {
             locationOfObject.X = 200;
             locationOfObject.Y = 200;
-            _map = new InGraphics.StandardDrawingElements.Square2DMap(Color.Gray, 45, 45, 15);
+            _map = new SimpleGMap<GRectangle>(45, 45, 15);
             _map.SetCommonDegree();
-            _character = new InGraphics._2D.SimpleGElement<InGraphics._2D.StandardDrawingElements.GRectangle>(new InGraphics._2D.StandardDrawingElements.GRectangle(new Rectangle(locationOfObject.X, locationOfObject.Y, 30, 30), Color.Blue));
+            _character = new SimpleGElement<GRectangle>(new GRectangle(new Rectangle(locationOfObject.X, locationOfObject.Y, 30, 30), Color.Blue));
             for(int step = 0; step < 40; step++)
             {
                 if (step < 25)
                 {
-                    _map.setBlock(0, step);
-                    _map.setBlock(8, step);
+                    _map.SetBlock(0, step, new SimpleGElement<GRectangle>(new GRectangle(new Rectangle(), Color.Aqua)));
+                    _map.SetBlock(8, step, new SimpleGElement<GRectangle>(new GRectangle(new Rectangle(), Color.AliceBlue)));
                 }
-                //_map.setBlock(16, step);
-                _map.setBlock(24, step);
-                _map.setBlock(32, step);
-                _map.setBlock(step, 40);
-                _map.setBlock(step, 0);
+                _map.SetBlock(24, step, new SimpleGElement<GRectangle>(new GRectangle(new Rectangle(), Color.Red)));
+                _map.SetBlock(32, step, new SimpleGElement<GRectangle>(new GRectangle(new Rectangle(), Color.Azure)));
+                _map.SetBlock(step, 40, new SimpleGElement<GRectangle>(new GRectangle(new Rectangle(), Color.BlueViolet)));
+                _map.SetBlock(step, 0, new SimpleGElement<GRectangle>(new GRectangle(new Rectangle(), Color.Brown)));
             }
 
 
             _drawing = new InGraphics.Drawing().SetBuffer(panelForDrawing, Color.White);
-            _drawing.OnDraw += _map.DrawOn;
+            _drawing.OnDraw += _map.FillOn;
             _drawing.OnDraw += _character.FillOn;
             timer1.Enabled = true;
 

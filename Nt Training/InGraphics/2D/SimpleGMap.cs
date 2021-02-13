@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Nt_Training.InGraphics._2D
 {
-    public class SimpleGMap<T> : Moving where T : IDraw, IFill, IMoving
+    public class SimpleGMap<T> : Moving where T : IDraw, IFill, IMoving, IFigureParameters
     {
         SimpleGElement<T>[,] _map;
         int _blockPx;
@@ -58,7 +58,7 @@ namespace Nt_Training.InGraphics._2D
         }
         public virtual void MoveByDegrees()
         {
-            Point addingPoint = GetNextCell();
+            Point addingPoint = GetAddingPoint();
             for (int step = 0; step < _map.GetLength(0); step++)
             {
                 for (int inStep = 0; inStep < _map.GetLength(1); inStep++)
@@ -70,6 +70,11 @@ namespace Nt_Training.InGraphics._2D
         }
         public void SetBlock<I>(int numberOfLine, int numberOfColumn, I drawingElement) where I : SimpleGElement<T>
         {
+            drawingElement.X = numberOfColumn * _blockPx;
+            drawingElement.Y = numberOfLine * _blockPx;
+            drawingElement.Heigh = _blockPx;
+            drawingElement.Width = _blockPx;
+            drawingElement.FixPosition();
             _map[numberOfLine, numberOfColumn] = drawingElement;
         }
         public void ReturnToStart()
@@ -78,7 +83,7 @@ namespace Nt_Training.InGraphics._2D
             {
                 for (int inStep = 0; inStep < _map.GetLength(1); inStep++)
                 {
-                    _map[step, inStep].ReturnToStart();
+                    if(_map[step, inStep] != null) _map[step, inStep].ReturnToStart();
                 }
             }
         }
