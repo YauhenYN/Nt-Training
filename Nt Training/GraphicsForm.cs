@@ -57,7 +57,7 @@ namespace Nt_Training
             _drawing.OnDraw += _character.FillOn;
             timer1.Enabled = true;
 
-            SystemNetwork.Networks.LearningMethods.Learning learning = new SystemNetwork.Networks.LearningMethods.MOPLearning() { SpeedE = 0.3, MomentA = 0.4};
+            SystemNetwork.Networks.LearningMethods.Learning learning = new SystemNetwork.Networks.LearningMethods.MOPLearning() { SpeedE = 0.2, MomentA = 0.3};
             SystemNetwork.Neurons.InputNeuron[] inputNeurons = new SystemNetwork.Neurons.InputNeuron[4];
             for (int step = 0; step < inputNeurons.Length; step++) inputNeurons[step] = new SystemNetwork.Neurons.InputNeuron();
 
@@ -138,7 +138,7 @@ namespace Nt_Training
                     copying[directionOfMax] = 1;
                     _network.TeachNetwork(copying);
                     _map.ReturnToStart();
-                    //MessageBox.Show(topDistance.ToString() + " - " + downDistance.ToString() + " - " + leftDistance.ToString() + " - " + rightDistance.ToString());
+                    MessageBox.Show(topDistance.ToString() + " - " + downDistance.ToString() + " - " + leftDistance.ToString() + " - " + rightDistance.ToString());
                     //MessageBox.Show(results[0].ToString() + " " + results[1].ToString() + " " + results[2].ToString() + " " + results[3].ToString());
                 }
                 _network.DisposeNeurons();
