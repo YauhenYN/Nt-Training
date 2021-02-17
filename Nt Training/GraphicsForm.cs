@@ -120,7 +120,7 @@ namespace Nt_Training
             _drawing.DisposeBuffer();
             _drawing.RefreshBuffer();
             // РАССТОЯНИЕ(0-1)[4]
-            if (count % 25 == 0) {
+            if (count % 10 == 0) {
                 bool[,] map = _map.getAreaMap(new Rectangle(0, 0, locationOfObject.X * 2, locationOfObject.X * 2));
                 Point location = new Point(locationOfObject.X, locationOfObject.Y);
                 int topDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.top);
@@ -130,21 +130,16 @@ namespace Nt_Training
                 double[] results = _network.Start((double)topDistance / 200, (double)downDistance / 200, (double)leftDistance / 200, (double)rightDistance / 200);
                 _direction = IntoDirection(results);
                 double[] distances = { topDistance, downDistance, leftDistance, rightDistance };
-                if (distances[(int)_direction] < 30 && distances[(int)_direction] != 0)
+                if (distances[(int)_direction] < 30)
                 {
-                    int indexOfMax = (int)IntoDirection(distances);
+                    int directionOfMax = (int)IntoDirection(distances);
                     double[] copying = (double[])results.Clone();
-                    //for (int step = 0; step < copying.Length; step++) copying[step] = 0;
                     copying[(int)_direction] = 0;
-                    copying[indexOfMax] = 1;
+                    copying[directionOfMax] = 1;
                     _network.TeachNetwork(copying);
                     _map.ReturnToStart();
-                    //MessageBox.Show(_direction.ToString());
-                    //MessageBox.Show(distances[(int)_direction].ToString());
-                    //MessageBox.Show(indexOfMax.ToString());
-                    //MessageBox.Show(copying[0] + " " + copying[1] + " " + copying[2] + " " + copying[3]);
-                    //MessageBox.Show(topDistance + " " + downDistance + " " + leftDistance + " " + rightDistance);
-                    MessageBox.Show(results[0].ToString() + " " + results[1].ToString() + " " + results[2].ToString() + " " + results[3].ToString());
+                    //MessageBox.Show(topDistance.ToString() + " - " + downDistance.ToString() + " - " + leftDistance.ToString() + " - " + rightDistance.ToString());
+                    //MessageBox.Show(results[0].ToString() + " " + results[1].ToString() + " " + results[2].ToString() + " " + results[3].ToString());
                 }
                 _network.DisposeNeurons();
             }
@@ -152,7 +147,7 @@ namespace Nt_Training
         }
         private InGraphics.Moving.MoveTo IntoDirection(double[] results)
         {
-            double max = results.Contains(0) ? 0 : results.Max();
+            double max = results.Max();
             int number = 0;
             for (int step = 0; step < results.Length; step++) if (results[step] == max) { number = step; break; }
             return (InGraphics.Moving.MoveTo)number;
@@ -181,7 +176,7 @@ namespace Nt_Training
                 count++;
                 if (map[Convert.ToInt32(xBuffer), Convert.ToInt32(yBuffer)]) return count;
             }
-            return 0;
+            return int.MaxValue;
         }
         public int FindObstacle(bool[,] map, Point position, int length, InGraphics.Moving.MoveTo direction)
         {
@@ -213,7 +208,7 @@ namespace Nt_Training
                 }
                 count = 0;
             }
-            return 0;
+            return int.MaxValue;
         }
         private void button3_Click(object sender, EventArgs e)
         {

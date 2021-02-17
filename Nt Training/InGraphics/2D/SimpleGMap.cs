@@ -87,7 +87,7 @@ namespace Nt_Training.InGraphics._2D
                 }
             }
         }
-        public bool[,] getAreaMap(Rectangle localArea)
+        public bool[,] getAreaMap(Rectangle localArea) //ПЕРЕРАБОТАТЬ
         {
             Bitmap bitmap = new Bitmap(_map.GetLength(1) * _blockPx, _map.GetLength(0) * _blockPx);
             DrawOn(bitmap);
@@ -97,7 +97,7 @@ namespace Nt_Training.InGraphics._2D
                 for (int inStep = 0; inStep < map.GetLength(1); inStep++)
                 { 
                     if (bitmap.GetPixel(localArea.Y + inStep, localArea.X + step) != Color.FromArgb(0)) map[step, inStep] = true;
-                } //Нужно ли всё-таки из картинки делать новую картинку
+                }
             }
             bitmap.Dispose();
             return map;

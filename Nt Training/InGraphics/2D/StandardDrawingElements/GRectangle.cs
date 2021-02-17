@@ -37,7 +37,7 @@ namespace Nt_Training.InGraphics._2D.StandardDrawingElements
                 graphics.FillRectangle(b, Rectangle);
             }
         }
-        public void MoveOn(int px, MoveTo whereToMove) => Rectangle = sides[(int)whereToMove].AddToSide(Rectangle, px);
+        public void MoveOn(int px, MoveTo whereToMove) => sides[(int)whereToMove].AddToSide(this, px);
 
         public void MoveByDegrees(Point addingPoint) => Rectangle = new Rectangle(Rectangle.X + addingPoint.X, Rectangle.Y + addingPoint.Y, Rectangle.Width, Rectangle.Height);
     }

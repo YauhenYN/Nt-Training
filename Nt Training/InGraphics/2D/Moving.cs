@@ -9,7 +9,7 @@ using System.Windows.Forms;
 namespace Nt_Training.InGraphics
 {
     public abstract class Moving
-    {
+    { //СРОЧНО ИЗМЕНИТЬ ПОВЕДЕНИЕ ДВИЖЕНИЯ, УБРАТЬ RECTANGLE, А ЛУЧШЕ ИЗМЕНИТЬ ДВИЖЕНИЕ ПО POINT.X/Y
         public enum Direction
         {
             downright,
@@ -96,38 +96,37 @@ namespace Nt_Training.InGraphics
         }
         protected abstract class MovingToSide
         {
-            public abstract Rectangle AddToSide(Rectangle rectangle, int px);
+            public abstract void AddToSide<T>(T figure, int px) where T : _2D.IFigureParameters;
         }
         protected class MovingUp : MovingToSide
         {
-            public override Rectangle AddToSide(Rectangle rectangle, int px)
+            public override void AddToSide<T>(T figure, int px)
             {
-                rectangle.Y -= px;
-                return rectangle;
+                figure.Y -= px;
             }
         }
         protected class MovingDown : MovingToSide
         {
-            public override Rectangle AddToSide(Rectangle rectangle, int px)
+
+            public override void AddToSide<T>(T figure, int px)
             {
-                rectangle.Y += px;
-                return rectangle;
+                figure.Y += px;
             }
         }
         protected class MovingToLeft : MovingToSide
         {
-            public override Rectangle AddToSide(Rectangle rectangle, int px)
+
+            public override void AddToSide<T>(T figure, int px)
             {
-                rectangle.X -= px;
-                return rectangle;
+                figure.X -= px;
             }
         }
         protected class MovingToRight : MovingToSide
         {
-            public override Rectangle AddToSide(Rectangle rectangle, int px)
+
+            public override void AddToSide<T>(T figure, int px)
             {
-                rectangle.X += px;
-                return rectangle;
+                figure.X += px;
             }
         }
     }
