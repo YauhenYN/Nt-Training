@@ -33,22 +33,23 @@ namespace Nt_Training
         InGraphics.Moving.MoveTo _direction;
         private void GraphicsForm_Shown(object sender, EventArgs e)
         {
-            locationOfObject.X = 200;
-            locationOfObject.Y = 200;
-            _map = new SimpleGMap<GRectangle>(45, 45, 15);
+            locationOfObject.X = 100;
+            locationOfObject.Y = 50;
+            _map = new SimpleGMap<GRectangle>(100, 100, 15);
             _map.SetCommonDegree();
             _character = new SimpleGElement<GRectangle>(new GRectangle(new Rectangle(locationOfObject.X, locationOfObject.Y, 30, 30), Color.Blue));
-            for(int step = 0; step < 40; step++)
+            for(int step = 0; step < 99; step++)
             {
-                if (step < 25)
-                {
-                    _map.SetBlock(0, step, new SimpleGElement<GRectangle>(new GRectangle(new Rectangle(), Color.Aqua)));
-                    _map.SetBlock(8, step, new SimpleGElement<GRectangle>(new GRectangle(new Rectangle(), Color.AliceBlue)));
-                }
-                _map.SetBlock(24, step, new SimpleGElement<GRectangle>(new GRectangle(new Rectangle(), Color.Red)));
-                _map.SetBlock(32, step, new SimpleGElement<GRectangle>(new GRectangle(new Rectangle(), Color.Azure)));
-                _map.SetBlock(step, 40, new SimpleGElement<GRectangle>(new GRectangle(new Rectangle(), Color.BlueViolet)));
-                _map.SetBlock(step, 0, new SimpleGElement<GRectangle>(new GRectangle(new Rectangle(), Color.Brown)));
+                if(step < 8) _map.SetBlock(step, 0, new SimpleGElement<GRectangle>(new GRectangle(new Rectangle(), Color.Brown)));
+                if (step < 60) _map.SetBlock(0, step, new SimpleGElement<GRectangle>(new GRectangle(new Rectangle(), Color.Brown)));
+                if (step < 50 && step > 40) _map.SetBlock(8, step, new SimpleGElement<GRectangle>(new GRectangle(new Rectangle(), Color.Brown)));
+                if (step < 30) _map.SetBlock(8, step, new SimpleGElement<GRectangle>(new GRectangle(new Rectangle(), Color.Brown)));
+                if (step > 8 && step < 20) _map.SetBlock(step, 29, new SimpleGElement<GRectangle>(new GRectangle(new Rectangle(), Color.Brown)));
+                if (step > 8 && step < 20) _map.SetBlock(step, 40, new SimpleGElement<GRectangle>(new GRectangle(new Rectangle(), Color.Brown)));
+                if (step > 28 && step < 42) _map.SetBlock(20, step, new SimpleGElement<GRectangle>(new GRectangle(new Rectangle(), Color.Brown)));
+                if (step > 8 && step < 40) _map.SetBlock(step, 50, new SimpleGElement<GRectangle>(new GRectangle(new Rectangle(), Color.Brown)));
+                if(step < 32)_map.SetBlock(step, 60, new SimpleGElement<GRectangle>(new GRectangle(new Rectangle(), Color.Brown)));
+                _map.SetBlock(39, step, new SimpleGElement<GRectangle>(new GRectangle(new Rectangle(), Color.Brown)));
             }
 
 
@@ -57,7 +58,7 @@ namespace Nt_Training
             _drawing.OnDraw += _character.FillOn;
             timer1.Enabled = true;
 
-            SystemNetwork.Networks.LearningMethods.Learning learning = new SystemNetwork.Networks.LearningMethods.MOPLearning() { SpeedE = 0.2, MomentA = 0.3};
+            
             SystemNetwork.Neurons.InputNeuron[] inputNeurons = new SystemNetwork.Neurons.InputNeuron[4];
             for (int step = 0; step < inputNeurons.Length; step++) inputNeurons[step] = new SystemNetwork.Neurons.InputNeuron();
 
@@ -98,15 +99,16 @@ namespace Nt_Training
             SystemNetwork.Layers.HiddenLayer averageLayer1 = new SystemNetwork.Layers.HiddenLayer(averageNeurons1);
 
             SystemNetwork.Neurons.ActivationFunctions.LogisticFunction function = new SystemNetwork.Neurons.ActivationFunctions.LogisticFunction(2);
-
             _network = new SystemNetwork.Networks.Network(function);
             _network.AddInPutNeurons(inputNeurons);
             _network.AddAverageLayer(averageLayer);
             _network.AddAverageLayer(averageLayer1);
             _network.AddOutPutNeurons(outputNeurons);
+            SystemNetwork.Networks.LearningMethods.Learning learning = new SystemNetwork.Networks.LearningMethods.MOPLearning() { SpeedE = 0.2, MomentA = 0.3 };
             _network.SetTeaching(learning);
 
-            label1.Text = "Genaration: " + generaton;
+            label1.Text = "Generation: " + generaton;
+            sides = new List<InGraphics.Moving.MoveTo>();
         }
         private void button1_Click(object sender, EventArgs e)
         {
@@ -115,39 +117,62 @@ namespace Nt_Training
         }
         private int count = 0;
         private int generaton = 0;
+        private int radiusOfAreaMap = 200;
         private InGraphics.Moving.MoveTo[] _mirroredDirections = { InGraphics.Moving.MoveTo.down, InGraphics.Moving.MoveTo.top, InGraphics.Moving.MoveTo.right, InGraphics.Moving.MoveTo.left };
+        private int speedPx = 1;
         private void timer1_Tick(object sender, EventArgs e)
         {
-            _map.MoveOn(1, _mirroredDirections[(int)_direction]);
+            speedPx = textBox1.Text.Length == 0 ? 1 : Convert.ToInt32(textBox1.Text);
+            _map.MoveOn(speedPx, _mirroredDirections[(int)_direction]);
             _drawing.Draw();
             _drawing.DisposeBuffer();
             _drawing.RefreshBuffer();
             // РАССТОЯНИЕ(0-1)[4]
-            if (count % 10 == 0) {
-                bool[,] map = _map.getAreaMap(new Rectangle(0, 0, locationOfObject.X * 2, locationOfObject.X * 2));
-                Point location = new Point(locationOfObject.X, locationOfObject.Y);
+            if (count % 1 == 0) {
+                bool[,] map = _map.getAreaMap(new Rectangle(locationOfObject.X - radiusOfAreaMap, locationOfObject.Y - radiusOfAreaMap, radiusOfAreaMap * 2, radiusOfAreaMap * 2));
+                Point location = new Point(radiusOfAreaMap, radiusOfAreaMap);
                 int topDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.top);
                 int downDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.down);
                 int leftDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.left);
                 int rightDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.right);
                 double[] results = _network.Start((double)topDistance / 200, (double)downDistance / 200, (double)leftDistance / 200, (double)rightDistance / 200);
                 _direction = IntoDirection(results);
+
+                if (sides.Count == 0 || sides.Last() != _direction) sides.Add(_direction);
+
                 double[] distances = { topDistance, downDistance, leftDistance, rightDistance };
-                if (distances[(int)_direction] < 30)
+                bool isStuck = CheckIsStuck();
+                if (distances[(int)_direction] < 15 || isStuck)
                 {
+                    sides.Clear();
                     int directionOfMax = (int)IntoDirection(distances);
                     double[] copying = (double[])results.Clone();
-                    copying[(int)_direction] = 0;
+                    if(!isStuck)copying[(int)_direction] = 0;
                     copying[directionOfMax] = 1;
                     _network.TeachNetwork(copying);
                     _map.ReturnToStart();
-                    label1.Text = "Genaration: " + ++generaton;
-                    //MessageBox.Show(topDistance.ToString() + " - " + downDistance.ToString() + " - " + leftDistance.ToString() + " - " + rightDistance.ToString());
+                    label1.Text = "Generation: " + ++generaton;
+                    //MessageBox.Show(_direction.ToString());
+                    MessageBox.Show(topDistance.ToString() + " - " + downDistance.ToString() + " - " + leftDistance.ToString() + " - " + rightDistance.ToString());
                     //MessageBox.Show(results[0].ToString() + " " + results[1].ToString() + " " + results[2].ToString() + " " + results[3].ToString());
                 }
                 _network.DisposeNeurons();
             }
             count++;
+        }
+        List<InGraphics.Moving.MoveTo> sides;
+        bool CheckIsStuck()
+        {
+            InGraphics.Moving.MoveTo opposite(InGraphics.Moving.MoveTo side)
+            {
+                if (side == InGraphics.Moving.MoveTo.down) return InGraphics.Moving.MoveTo.top;
+                else if (side == InGraphics.Moving.MoveTo.left) return InGraphics.Moving.MoveTo.right;
+                else if (side == InGraphics.Moving.MoveTo.top) return InGraphics.Moving.MoveTo.down;
+                else return InGraphics.Moving.MoveTo.left;
+            }
+            if (sides.Count == 3 && sides[0] == sides[2] && sides[1] == opposite(sides[0])) { sides.Clear(); return true; }
+            else if (sides.Count >= 3) { sides.Clear(); }
+            return false;
         }
         private InGraphics.Moving.MoveTo IntoDirection(double[] results)
         {
@@ -235,6 +260,11 @@ namespace Nt_Training
         {
             if (timer1.Enabled) timer1.Enabled = false;
             else timer1.Enabled = true;
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            _map.ReturnToStart();
         }
     }
 }

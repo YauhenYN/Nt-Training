@@ -92,7 +92,7 @@ namespace Nt_Training.SystemNetwork.Networks.LearningMethods
             total_reward += reward;
         }
         //Похоже, что нужно передавать сразу State с Action-ами
-        //Что же делать с действиями?
+        //Что же делать с действиями? 
         //А что если сразу убрать State и Action классы, а использовать вместо них пользовательские
         //Если нет такого State s states, то нужно добавлять новый
     }

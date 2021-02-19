@@ -109,13 +109,13 @@ namespace Nt_Training.InGraphics._2D
                 {
                     if(_map[line, column] != null)
                     {
-                        if(_map[line, column].X + _blockPx > 0 && _map[line, column].Y + _blockPx > 0 && _map[line, column].X < localArea.Height && _map[line, column].Y < localArea.Width)
+                        if(_map[line, column].X + _blockPx > localArea.X && _map[line, column].Y + _blockPx > localArea.Y && _map[line, column].X < localArea.Height + localArea.X && _map[line, column].Y < localArea.Width + localArea.Y)
                         {
                             for(int step = _map[line, column].X; step < _map[line, column].X + _blockPx; step++)
                             {
                                 for(int inStep = _map[line, column].Y; inStep < _map[line, column].Y + _blockPx; inStep++)
                                 {
-                                    if (step >= 0 && step < localArea.Height && inStep >= 0 && inStep < localArea.Width) map[inStep, step] = true;
+                                    if (step >= localArea.X && step < localArea.Height + localArea.X && inStep >= localArea.Y && inStep < localArea.Width + localArea.Y) map[inStep - localArea.Y, step - localArea.X] = true;
                                 }
                             }
                         }
