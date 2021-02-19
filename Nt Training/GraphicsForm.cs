@@ -105,6 +105,8 @@ namespace Nt_Training
             _network.AddAverageLayer(averageLayer1);
             _network.AddOutPutNeurons(outputNeurons);
             _network.SetTeaching(learning);
+
+            label1.Text = "Genaration: " + generaton;
         }
         private void button1_Click(object sender, EventArgs e)
         {
@@ -112,6 +114,7 @@ namespace Nt_Training
             _map.MoveOn(5, InGraphics.Moving.MoveTo.left);
         }
         private int count = 0;
+        private int generaton = 0;
         private InGraphics.Moving.MoveTo[] _mirroredDirections = { InGraphics.Moving.MoveTo.down, InGraphics.Moving.MoveTo.top, InGraphics.Moving.MoveTo.right, InGraphics.Moving.MoveTo.left };
         private void timer1_Tick(object sender, EventArgs e)
         {
@@ -138,7 +141,8 @@ namespace Nt_Training
                     copying[directionOfMax] = 1;
                     _network.TeachNetwork(copying);
                     _map.ReturnToStart();
-                    MessageBox.Show(topDistance.ToString() + " - " + downDistance.ToString() + " - " + leftDistance.ToString() + " - " + rightDistance.ToString());
+                    label1.Text = "Genaration: " + ++generaton;
+                    //MessageBox.Show(topDistance.ToString() + " - " + downDistance.ToString() + " - " + leftDistance.ToString() + " - " + rightDistance.ToString());
                     //MessageBox.Show(results[0].ToString() + " " + results[1].ToString() + " " + results[2].ToString() + " " + results[3].ToString());
                 }
                 _network.DisposeNeurons();
