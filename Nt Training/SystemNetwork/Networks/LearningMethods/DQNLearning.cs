@@ -85,32 +85,92 @@ namespace Nt_Training.SystemNetwork.Networks.LearningMethods
         }
         public class ReplayBuffer
         {
-            
+            public struct Transition
+            {
+                public double s, a, r, next_s; 
+                public bool done_mask;
+                public Transition(double s, double a, double r, double next_s, bool done_mask)
+                {
+                    this.s = s;
+                    this.a = a;
+                    this.r = r;
+                    this.next_s = next_s;
+                    this.done_mask = done_mask;
+                }
+            }
+            public Transition[] transitions;
+            private int index;
+            public int Legth { get => index + 1; }
+            public ReplayBuffer(int max_size)
+            { //Создаём структуру для хранения данных
+                transitions = new Transition[max_size];
+                index = 0;
+            }
+            public void Put(double s, double a, double r, double next_s, bool done_mask)
+            {
+                //Помещаем данные в replay buffer
+                //param transition: (s, a, r, next_s, done_mask)
+                transitions[index++] = new Transition(s, a, r, next_s, done_mask);
+            }
+            public Transition[] Sample(int n)
+            {
+                //сэмплируем батч заданного размера
+                //param n: размер мини-батча
+                //return:
+                Random rand = new Random();
+                Transition[] transitions = new Transition[n];
+                for(int step = 0; step < n; step++)
+                {
+                    transitions[step] = this.transitions[rand.Next(this.transitions.Length)];
+                }
+                return transitions;
+            }
         }
         ReplayBuffer replayBuffer;
         public DQNLearning()
         {
-            replayBuffer = new ReplayBuffer();
+            replayBuffer = new ReplayBuffer(5);
+        }//q - наша сеть, q-target - target сеть, optimizer - оптимизатор, 
+        public void train(QNetwork q, double q_target, ReplayBuffer replayBuffer, int optimizer, int batch_size, double gamma, int updates_number = 10)
+        {//тренируем нашу архитектуру
+            //param q: policy сеть
+            //param q_target: target сеть
+            //param replay_buffer
+            //param optimizer
+            //param batch_size: размер мини-батча
+            //param gamma: дисконтирующий множитель
+            //param updates_number: количество обновлений, которые необходимо выполнить
+            //return
+            for(int step = 0; step < updates_number; step++)
+            {
+                //сэмплируем мини-батч из replay buffer-а
+                ReplayBuffer.Transition[] transitions = replayBuffer.Sample(batch_size);
+                //Получаем полезность для выбранного действия q сети
+                //double q_out = q(s);
+                //q_a = q_out.gather(1, a)
+                //получаем значение max_q target сети и считаем значение target
+                //max_q_prime = q_target(s_prime).max(1)[0].unsqueeze(1)
+                //target = r + gamma * max_q_prime * done_mask
+                //определяем Loss функцию для q
+                //loss = F.smooth_l1_loss(q_a, target.detach())
+                //optimizer.zero_grad()
+                //loss.backward()
+                //optimizer.step()
+            }
         }
-        //Представляет собой цикл, только каждая итерация - это каждый выхов метода
-        public void SetAndUpdate() //для 1...D (при каждом обновлении среды)
+        public void run() //learning_rate, gamma, buffer_max_size, batch_size, target_update_interval, replay_buffer_start_size, print_interval = 20, n_episodes = 2000
         {
-            //Получаем x0(первые получаемые данные)
-            //s0 = CNN(x0)
+            //создаём окружение
+            //создаём q и target_q
+            //копируем веса q в target_q
+            //создаём replay_buffer
+            //инициализируем оптимизатор, полученным Lr
+            //в цикле for n_epi in range(n_episodes):
+            //постепенно меняем eps с 8% до 1%
+            //выполняем 600 шагов в окружении и сохраняем полученные данные for t in range(600)
+            //получаем действие используя сеть q
+            //выполняем действие в окружении
+            //
         }
-        /*private Y Get_action(T state)
-        {
-
-        }*/
-        public void Step() //для 1...T (при каждом ходе)
-        {
-            //Get_Action()
-            //(rt, xt+1, st+1 = CNN(xt+1))
-            //(st, at, rt, st+1) -> M
-            //Сэмплируем минибатч из Memory
-            //y(оценка) = 
-            //обновление весов
-        }
-        //DQN использует нейронную сеть для оценки функции Q-значения
     }
 }

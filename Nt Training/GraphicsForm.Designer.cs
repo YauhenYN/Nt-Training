@@ -45,7 +45,7 @@
             // 
             this.panelForDrawing.BackColor = System.Drawing.SystemColors.InactiveBorder;
             this.panelForDrawing.Location = new System.Drawing.Point(9, 10);
-            this.panelForDrawing.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.panelForDrawing.Margin = new System.Windows.Forms.Padding(2);
             this.panelForDrawing.Name = "panelForDrawing";
             this.panelForDrawing.Size = new System.Drawing.Size(404, 346);
             this.panelForDrawing.TabIndex = 0;
@@ -53,7 +53,7 @@
             // button1
             // 
             this.button1.Location = new System.Drawing.Point(519, 150);
-            this.button1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button1.Margin = new System.Windows.Forms.Padding(2);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(56, 19);
             this.button1.TabIndex = 1;
@@ -109,7 +109,7 @@
             // button5
             // 
             this.button5.Location = new System.Drawing.Point(492, 232);
-            this.button5.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button5.Margin = new System.Windows.Forms.Padding(2);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(56, 19);
             this.button5.TabIndex = 6;
@@ -149,7 +149,7 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.panelForDrawing);
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "GraphicsForm";
             this.Text = "GraphicsForm";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.GraphicsForm_FormClosing);

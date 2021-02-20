@@ -128,7 +128,8 @@ namespace Nt_Training
             _drawing.DisposeBuffer();
             _drawing.RefreshBuffer();
             // РАССТОЯНИЕ(0-1)[4]
-            if (count % 1 == 0) {
+            if (count % 1 == 0)
+            {
                 bool[,] map = _map.getAreaMap(new Rectangle(locationOfObject.X - radiusOfAreaMap, locationOfObject.Y - radiusOfAreaMap, radiusOfAreaMap * 2, radiusOfAreaMap * 2));
                 Point location = new Point(radiusOfAreaMap, radiusOfAreaMap);
                 int topDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.top);
@@ -147,13 +148,13 @@ namespace Nt_Training
                     sides.Clear();
                     int directionOfMax = (int)IntoDirection(distances);
                     double[] copying = (double[])results.Clone();
-                    if(!isStuck)copying[(int)_direction] = 0;
+                    if (!isStuck) copying[(int)_direction] = 0;
                     copying[directionOfMax] = 1;
                     _network.TeachNetwork(copying);
                     _map.ReturnToStart();
                     label1.Text = "Generation: " + ++generaton;
                     //MessageBox.Show(_direction.ToString());
-                    MessageBox.Show(topDistance.ToString() + " - " + downDistance.ToString() + " - " + leftDistance.ToString() + " - " + rightDistance.ToString());
+                    //MessageBox.Show(topDistance.ToString() + " - " + downDistance.ToString() + " - " + leftDistance.ToString() + " - " + rightDistance.ToString());
                     //MessageBox.Show(results[0].ToString() + " " + results[1].ToString() + " " + results[2].ToString() + " " + results[3].ToString());
                 }
                 _network.DisposeNeurons();
