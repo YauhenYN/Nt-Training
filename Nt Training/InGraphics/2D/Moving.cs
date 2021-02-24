@@ -9,7 +9,7 @@ using System.Windows.Forms;
 namespace Nt_Training.InGraphics
 {
     public abstract class Moving
-    { //СРОЧНО ИЗМЕНИТЬ ПОВЕДЕНИЕ ДВИЖЕНИЯ, УБРАТЬ RECTANGLE, А ЛУЧШЕ ИЗМЕНИТЬ ДВИЖЕНИЕ ПО POINT.X/Y
+    { 
         public enum Direction
         {
             downright,
@@ -17,75 +17,56 @@ namespace Nt_Training.InGraphics
             topleft,
             topright
         }
-        private class EntireAngle //Лучше бы переделать в обычную очередь
-        {
-            public class Angle
-            {
-                int _angleDegrees;
-                public int AngleDegrees { get { return _angleDegrees; } set { if (value < 90 && value > -1) _angleDegrees = value; } }
-                private double _remainder;
-                private double _neededCellValue;
-                public Angle(int degrees, double divider) : this(degrees)
-                {
-                    _remainder = degrees / divider;
-                    _neededCellValue = _remainder;
-                }
-                public Angle(int degrees)
-                {
-                    AngleDegrees = degrees;
-                }
-                public int GetSwitch()
-                {
-                    if (_remainder < 1) { _remainder += _neededCellValue; return 0; }
-                    else { int answer = Convert.ToInt32(_remainder); _remainder = _neededCellValue; return answer;}
-                }
-            }
-            public Angle leftAngle { get; private set; }
-            public Angle rightAngle { get; private set; }
-            private int xVector = 1;
-            private int yVector = 1;
-            public void setAnglesValue(int leftAngleDegrees, Direction direction, double speed)
-            {
-                double divider = 90 / speed;
-                leftAngle = new Angle(leftAngleDegrees, divider);
-                rightAngle = new Angle(90 - leftAngleDegrees, divider);
-                if(direction == Direction.downright) //НУЖНО УБРАТЬ IF
-                {
-                    xVector = 1;
-                    yVector = 1;
-                }
-                else if (direction == Direction.downleft)
-                {
-                    xVector = -1;
-                    yVector = 1;
-                }
-                else if(direction == Direction.topleft)
-                {
-                    xVector = -1;
-                    yVector = -1;
-                }
-                else
-                {
-                    xVector = 1;
-                    yVector = -1;
-                }
-            }
-            public Point getNextPoint()
-            {
-                return leftAngle != null ? new Point(leftAngle.GetSwitch() * xVector, rightAngle.GetSwitch() * yVector) : new Point(0, 0);
-            }
-        }
         public Moving() { }
-        EntireAngle _entireAngle;
-        public void SetCommonDegree()
-        {        //commonDegrees - НЕТ БЕЗОПАСНОСТИ ЗНАЧЕНИЙ, НУЖНО ХОТЯ-БЫ СОЗДАТЬ ОТДЕЛЬНЫЙ ТИП С УГЛОМ
-            _entireAngle = new EntireAngle();
-        }
-        public void ChangeDirection(int leftAnglesDegrees, Direction direction, double speed)
+        double _sumX, _sumY;
+        public void SetDegreeParameters()
         {
-            _entireAngle.setAnglesValue(leftAnglesDegrees, direction, speed);
         }
-        protected Point GetAddingPoint() => _entireAngle != null ? _entireAngle.getNextPoint() : new Point(0, 0);
+        int _lastLeftDegrees;
+        Direction _lastDirection;
+        double _lastSpeed;
+        public void ChangeDirection(int leftDegrees, Direction direction, double speed)
+        {
+            if (_lastLeftDegrees != leftDegrees || _lastDirection != direction || _lastSpeed != speed)
+            {
+                _sumX = (double)leftDegrees / 90 * speed;
+                _sumY = (90 - (double)leftDegrees) / 90 * speed;
+                if (direction == Direction.downleft)
+                {
+                    _sumY *= -1;
+                }
+                else if (direction == Direction.topright)
+                {
+                    _sumX *= -1;
+                }
+                else if (direction == Direction.topleft)
+                {
+                    _sumX *= -1;
+                    _sumY *= -1;
+                }
+                if(Math.Abs(leftDegrees) != 90 && Math.Abs(leftDegrees) != 0)
+                {
+                    _sumX *= 2;
+                    _sumY *= 2;
+                }
+                _xBuffer = 0;
+                _yBuffer = 0;
+                _lastLeftDegrees = leftDegrees;
+                _lastDirection = direction;
+                _lastSpeed = speed;
+            }
+        }
+        double _xBuffer, _yBuffer;
+        protected Point GetAddingPoint()
+        {
+            _xBuffer += _sumX;
+            _yBuffer += _sumY;
+            Point outPoint = new Point((int)_xBuffer, (int)_yBuffer);
+            if (Math.Abs(_xBuffer) >= 1) _xBuffer -= (int)_xBuffer;
+            if (Math.Abs(_yBuffer) >= 1) _yBuffer -= (int)_yBuffer;
+            return outPoint;
+        }
+        //Бляяя, он не хочет идти, т.к каждый ход он вызыват ChangeDirection и GetAddingPoint по 1-ому разу
         protected static MovingToSide[] sides { get; } = { new MovingUp(), new MovingDown(), new MovingToLeft(), new MovingToRight() };
         public enum MoveTo
         {
@@ -96,7 +77,7 @@ namespace Nt_Training.InGraphics
         }
         protected abstract class MovingToSide
         {
-            public abstract void AddToSide<T>(T figure, int px) where T : _2D.IFigureParameters;
+            public abstract void AddToSide<T>(T figure, int px) where T : _2D.ILocation;
         }
         protected class MovingUp : MovingToSide
         {

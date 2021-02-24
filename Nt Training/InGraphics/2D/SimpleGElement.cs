@@ -16,19 +16,17 @@ namespace Nt_Training.InGraphics._2D
     {
         public void Fill(Bitmap imageBuffer);
     }
-    public interface IMoving
-    {
-        public void MoveOn(int px, Moving.MoveTo whereToMove);
-        public void MoveByDegrees(Point addingPoint);
-    }
-    public interface IFigureParameters
+    public interface ILocation
     {
         public int X { get; set; }
         public int Y { get; set; }
+    }
+    public interface IFigureParameters
+    {
         public int Heigh { get; set; }
         public int Width { get; set; }
     }
-    public class SimpleGElement<T> : Moving, IFigureParameters where T : IDraw, IFill, IMoving, IFigureParameters
+    public class SimpleGElement<T> : Moving, IFigureParameters, ILocation where T : IDraw, IFill, IFigureParameters, ILocation
     {
         private Rectangle _startingParameters;
         public T Element { get; private set; }
@@ -39,21 +37,23 @@ namespace Nt_Training.InGraphics._2D
         public void FixPosition() => _startingParameters = new Rectangle(Element.X, Element.Y, Element.Width, Element.Heigh);
         public virtual void DrawOn(Bitmap imageBuffer) => Element.Draw(imageBuffer);
         public virtual void FillOn(Bitmap imageBuffer) => Element.Fill(imageBuffer);
-        public virtual void MoveOn(int px, Moving.MoveTo whereToMove)
+        public virtual void MoveOn(int px, MoveTo whereToMove)
         {
-            Element.MoveOn(px, whereToMove);
+            sides[(int)whereToMove].AddToSide(this, px);
         }
         public virtual void MoveByDegrees()
         {
             Point addingPoint = GetAddingPoint();
-            Element.MoveByDegrees(addingPoint);
+            Element.X += addingPoint.X;
+            Element.Y += addingPoint.Y;
         }
         /// <summary>
         /// When necessary to use several parameters
         /// </summary>
         public virtual void MoveByDegrees(Point addingPoint)
         {
-            Element.MoveByDegrees(addingPoint);
+            Element.X += addingPoint.X;
+            Element.Y += addingPoint.Y;
         }
         public int X { get => Element.X; set => Element.X = value; }
         public int Y { get => Element.Y; set => Element.Y = value; }

@@ -7,7 +7,7 @@ using System.Drawing;
 
 namespace Nt_Training.InGraphics._2D.StandardDrawingElements
 {
-    public class GRectangle : Moving, IDraw, IFill, IMoving, IFigureParameters // ИЗМЕНИТЬ MOVING
+    public class GRectangle : IDraw, IFill, IFigureParameters, ILocation // ИЗМЕНИТЬ MOVING
     {
         public Rectangle Rectangle { get; private set; }
         public int X { get => Rectangle.X; set => Rectangle = new Rectangle(value, Y, Width, Heigh); }
@@ -37,8 +37,6 @@ namespace Nt_Training.InGraphics._2D.StandardDrawingElements
                 graphics.FillRectangle(b, Rectangle);
             }
         }
-        public void MoveOn(int px, MoveTo whereToMove) => sides[(int)whereToMove].AddToSide(this, px);
-
         public void MoveByDegrees(Point addingPoint) => Rectangle = new Rectangle(Rectangle.X + addingPoint.X, Rectangle.Y + addingPoint.Y, Rectangle.Width, Rectangle.Height);
     }
 }

@@ -75,7 +75,7 @@
     <Compile Include="SystemNetwork\Networks\LearningMethods\Learning.cs" />
     <Compile Include="SystemNetwork\Networks\LearningMethods\MOPLearning.cs" />
     <Compile Include="SystemNetwork\Networks\LearningMethods\DQNLearning.cs" />
-    <Compile Include="SystemNetwork\Networks\LearningMethods\RLearning.cs" />
+    <Compile Include="SystemNetwork\Networks\LearningMethods\QLearning.cs" />
     <Compile Include="SystemNetwork\Networks\Network.cs" />
     <Compile Include="SystemNetwork\Neurons\ActivationFunctions\ActivationFuncton.cs" />
     <Compile Include="SystemNetwork\Neurons\ActivationFunctions\LogisticFunction.cs" />

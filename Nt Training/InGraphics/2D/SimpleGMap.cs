@@ -8,13 +8,18 @@ using System.Windows.Forms;
 
 namespace Nt_Training.InGraphics._2D
 {
-    public class SimpleGMap<T> : Moving where T : IDraw, IFill, IMoving, IFigureParameters
+    public class SimpleGMap<T> : Moving, ILocation where T : IDraw, IFill, IFigureParameters, ILocation
     {
-        SimpleGElement<T>[,] _map;
+        T[,] _map;
         int _blockPx;
+        int _x;
+        int _y;
+        public int X { get => _x; set => _x = value; }
+        public int Y { get => _y; set => _y = value; }
+
         public SimpleGMap(int linesCount, int columnsCount, int px = 15)
         {
-            _map = new SimpleGElement<T>[linesCount, columnsCount];
+            _map = new T[linesCount, columnsCount];
             _blockPx = px;
         }
 
@@ -26,7 +31,7 @@ namespace Nt_Training.InGraphics._2D
                 {
                     if (element != null)
                     {
-                        element.DrawOn(imageBuffer);
+                        element.Draw(imageBuffer);
                     }
                 }
             }
@@ -40,7 +45,7 @@ namespace Nt_Training.InGraphics._2D
                 {
                     if (element != null)
                     {
-                        element.FillOn(imageBuffer);
+                        element.Fill(imageBuffer);
                     }
                 }
             }
@@ -48,34 +53,38 @@ namespace Nt_Training.InGraphics._2D
 
         public virtual void MoveOn(int px, Moving.MoveTo whereToMove)
         {
+            sides[(int)whereToMove].AddToSide(this, px);
             for (int step = 0; step < _map.GetLength(0); step++)
             {
                 for (int inStep = 0; inStep < _map.GetLength(1); inStep++)
                     if (_map[step, inStep] != null)
                     {
-                        _map[step, inStep].MoveOn(px, whereToMove);
+                        sides[(int)whereToMove].AddToSide(_map[step, inStep], px);
                     }
             }
         }
         public virtual void MoveByDegrees()
         {
             Point addingPoint = GetAddingPoint();
+            _x += addingPoint.X;
+            _y += addingPoint.Y;
             for (int step = 0; step < _map.GetLength(0); step++)
             {
                 for (int inStep = 0; inStep < _map.GetLength(1); inStep++)
                     if (_map[step, inStep] != null)
                     {
-                        _map[step, inStep].MoveByDegrees(addingPoint);
+                        _map[step, inStep].X += addingPoint.X;
+                        _map[step, inStep].Y += addingPoint.Y;
                     }
             }
+            //MessageBox.Show(addingPoint.X.ToString() + "     -     " + addingPoint.Y.ToString());
         }
-        public void SetBlock<I>(int numberOfLine, int numberOfColumn, I drawingElement) where I : SimpleGElement<T>
+        public void SetBlock(int numberOfLine, int numberOfColumn, T drawingElement)
         {
             drawingElement.X = numberOfColumn * _blockPx;
             drawingElement.Y = numberOfLine * _blockPx;
             drawingElement.Heigh = _blockPx;
             drawingElement.Width = _blockPx;
-            drawingElement.FixPosition();
             _map[numberOfLine, numberOfColumn] = drawingElement;
         }
         public void ReturnToStart()
@@ -84,9 +93,15 @@ namespace Nt_Training.InGraphics._2D
             {
                 for (int inStep = 0; inStep < _map.GetLength(1); inStep++)
                 {
-                    if(_map[step, inStep] != null) _map[step, inStep].ReturnToStart();
+                    if(_map[step, inStep] != null)
+                    {
+                        _map[step, inStep].X = inStep * _blockPx;
+                        _map[step, inStep].Y = step * _blockPx;
+                    }
                 }
             }
+            _x = 0;
+            _y = 0;
         }
         public bool[,] getAreaMap(Rectangle localArea) //ПЕРЕРАБОТАТЬ
         {
