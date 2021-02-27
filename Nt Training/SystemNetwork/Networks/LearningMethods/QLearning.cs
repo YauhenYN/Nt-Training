@@ -43,7 +43,7 @@ namespace Nt_Training.SystemNetwork.Networks.LearningMethods
         private double _alpha;
         private double _eps;
         private double _discount; //штраф(Гамма)
-        List<State> states;
+        private List<State> states;
         public int CountStates { get => states.Count; }
         public QLearning(double alpha, double epsilon, double discount)
         {
@@ -75,7 +75,7 @@ namespace Nt_Training.SystemNetwork.Networks.LearningMethods
           //Выбирает действие, предпринимаемое в данном состоянии, включая исследование (eps greedy)
           //С вероятностью epsilon берём случайное действие, иначе действие согласно стратегии (Get_policy)
             Random rand = new Random();
-            if (rand.Next(100) / 100 < _eps) return state.actions[rand.Next(state.actions.Count)]; //А что делать если это новый State и у него ещё нет действий
+            if ((double)rand.Next(100) / 100 < _eps) return state.actions[rand.Next(state.actions.Count)];
             else return Get_Policy(state);
         }
         private void Update(State.Action action, State next_state, double reward)
@@ -94,7 +94,7 @@ namespace Nt_Training.SystemNetwork.Networks.LearningMethods
             for (int step = 0; step < newActions.Length; step++) newActions[step] = new State.Action(outActions[step]);
             State newState = new State(newActions, outState);
             if (!states.Contains(newState)) states.Add(newState);
-            else foreach(State state in states) if (state.Equals(newState)) newState = state;
+            else foreach (State state in states) if (state.Equals(newState)) newState = state;
             return newState;
         }
         public void SetAndUpdate(T outState, Y[] outActions) //Вызывается при каждом обновлении карты первым
@@ -109,11 +109,7 @@ namespace Nt_Training.SystemNetwork.Networks.LearningMethods
             Update(a, newState, reward); //Нужно передавать action от текущего state - a
             state = newState;
             total_reward += reward;
-            return a.OutAction; //Помоему нужно возвращать action от nextState
+            return Get_action(newState).OutAction;
         }
-        //Похоже, что нужно передавать сразу State с Action-ами
-        //Что же делать с действиями? 
-        //А что если сразу убрать State и Action классы, а использовать вместо них пользовательские
-        //Если нет такого State s states, то нужно добавлять новый
     }
 }

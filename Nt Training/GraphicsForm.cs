@@ -34,19 +34,17 @@ namespace Nt_Training
         }
         struct State : IEquatable<State>
         {
-            int _distanceToAim;
-            public int DistanceToAim{ get => _distanceToAim; }
-            Point _locationOfObject;
-            public Point Location { get => _locationOfObject; }
+            public int DistanceToAim{ get; }
+            public Point Location { get; }
             public State(int distanceToAim, Point locationOfObject)
             {
-                _distanceToAim = distanceToAim;
-                _locationOfObject = locationOfObject;
+                DistanceToAim = distanceToAim;
+                Location = locationOfObject;
             }
 
             public bool Equals(State other)
             {
-                if (DistanceToAim == other.DistanceToAim && _locationOfObject == other.Location) return true;
+                if (Location == other.Location) return true;
                 else return false;
             }
         }
@@ -62,7 +60,7 @@ namespace Nt_Training
         Point locationOfAim;
         SystemNetwork.Networks.Network _network;
         SystemNetwork.Networks.LearningMethods.QLearning<State, Action> qLearning;
-        int _degreesOfDirection;
+        int _degreesOfDirection; //ПЕРЕДЕЛАТЬ
         private double _speed;
         Thread _drawingThread;
         private void GraphicsForm_Shown(object sender, EventArgs e)
@@ -152,66 +150,86 @@ namespace Nt_Training
 
             label1.Text = "Generation: " + generaton;
 
-            qLearning = new SystemNetwork.Networks.LearningMethods.QLearning<State, Action>(0.1, 0.8, 0.2);
+            qLearning = new SystemNetwork.Networks.LearningMethods.QLearning<State, Action>(0.9, 0.05, 0.9);
             qLearning.SetAndUpdate(new State(FindDistance(locationOfCharacter, new Point(_aim.X, _aim.Y)), new Point(_map.X, _map.Y)), actions); //distance - расстояние от объекта до конечной цели, Location - позиция самой карты
-            timer1.Enabled = true;
             _drawingThread = new Thread(new ThreadStart(() => { while (true) { _drawing.Draw(); _drawing.DisposeBuffer(); _drawing.RefreshBuffer(); } }));
             _drawingThread.Start();
+            TeachQLearning();
+            timer1.Enabled = true;
         }
-        private int FindDistance(Point firstLocation, Point secondLocation)
+        public void TeachQLearning()
         {
-            return Convert.ToInt32(Math.Sqrt(Math.Pow(secondLocation.X - firstLocation.X, 2) + Math.Pow(secondLocation.Y - firstLocation.Y, 2)));
+            for (int distanceToAim = FindDistance(locationOfCharacter, new Point(_aim.X, _aim.Y)); distanceToAim > 5; distanceToAim = FindDistance(locationOfCharacter, new Point(_aim.X, _aim.Y)))
+            {
+                _map.MoveByDegrees();
+                _aim.MoveByDegrees();
+                bool[,] map = _map.getAreaMap(new Rectangle(locationOfCharacter.X - radiusOfAreaMap, locationOfCharacter.Y - radiusOfAreaMap, radiusOfAreaMap * 2, radiusOfAreaMap * 2));
+                Point location = new Point(radiusOfAreaMap, radiusOfAreaMap);
+                int topDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.top);
+                int downDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.down);
+                int leftDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.left);
+                int rightDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.right);
+                if (new int[] { topDistance, downDistance, leftDistance, rightDistance }.Min() < 15)
+                {
+                    qLearning.Step(new State(distanceToAim, new Point(_map.X, _map.Y)), actions, double.MinValue);
+                    _map.ReturnToStart();
+                    _aim.ReturnToStart();
+                    qLearning.SetAndUpdate(new State(distanceToAim, new Point(_map.X, _map.Y)), actions);
+                }
+                else
+                {
+                    Action outAction = qLearning.Step(new State(distanceToAim, new Point(_map.X, _map.Y)), actions, 0 - distanceToAim);
+                    _map.ChangeDirection(outAction.Degrees, outAction.Direction, _speed);
+                    _aim.ChangeDirection(outAction.Degrees, outAction.Direction, _speed);
+                }
+            }
+            _map.ReturnToStart();
+            _aim.ReturnToStart();
         }
         Action[] actions = { new Action(90, InGraphics.Moving.Direction.downright, 0), new Action(0, InGraphics.Moving.Direction.topright, 1), new Action(90, InGraphics.Moving.Direction.topleft, 2), new Action(0, InGraphics.Moving.Direction.downleft, 3), new Action(45, InGraphics.Moving.Direction.topleft, 4), new Action(45, InGraphics.Moving.Direction.downleft, 5), new Action(45, InGraphics.Moving.Direction.downright, 6), new Action(45, InGraphics.Moving.Direction.topright, 7)};
         private int generaton = 0;
         private int radiusOfAreaMap = 200;
-        //ДЛЯ НАЧАЛА НЕОБХОДИМО ОБУЧИТЬ Q-LEARNING, А ПОТОМ Q-LEARNING БУДЕТ ОБУЧАТЬ НЕЙРОННУЮ СЕТЬ
-        //ПЕРЕДЕЛАТЬ QLearning, ПОСТОЯННО ДОБАВЛЯЕТ НОВЫЙ ЭЛЕМЕНТ
         private void timer1_Tick(object sender, EventArgs e)
         {
-            //Я ДУМАЮ ЛУЧШЕ ВСЕГО ОБУЧАТЬ ДЕЛАТЬ ХОДЫ ПО Q-LEARNING, А СЕТЬ ОБУЧАТЬ ПО ТЕКУЩИМ ДАННЫМ
+            int indexOfMax(double[] results)
+            {
+                int index = 0; for (int step = 0; step < results.Length; step++) if (results[step] > results[index]) index = step; return index;
+            }
             _map.MoveByDegrees();
             _aim.MoveByDegrees();
             bool[,] map = _map.getAreaMap(new Rectangle(locationOfCharacter.X - radiusOfAreaMap, locationOfCharacter.Y - radiusOfAreaMap, radiusOfAreaMap * 2, radiusOfAreaMap * 2));
+            int distanceToAim = FindDistance(locationOfCharacter, new Point(_aim.X, _aim.Y));
             Point location = new Point(radiusOfAreaMap, radiusOfAreaMap);
             int topDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.top);
             int downDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.down);
             int leftDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.left);
             int rightDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.right);
-            int distanceToAim = FindDistance(locationOfCharacter, new Point(_aim.X, _aim.Y));
+            Action outAction = qLearning.Step(new State(distanceToAim, new Point(_map.X, _map.Y)), actions, int.MaxValue - distanceToAim * 5); //STEP - УБРАТЬ
             double[] results = _network.Start(distanceToAim / 1000, _degreesOfDirection / 360, (double)topDistance / radiusOfAreaMap, (double)downDistance / radiusOfAreaMap, (double)leftDistance / radiusOfAreaMap, (double)rightDistance / radiusOfAreaMap);
-            //Как нейронная сеть может понять куда ей двигаться если она смотрит только по сторонам
-            int indexOfMax(double[] results) { int index = 0; for (int step = 0; step < results.Length; step++) if (results[step] > results[index]) index = step; return index; }
+            //_degreesOfDirection - ПЕРЕДЕЛАТЬ
             int indexOfMaxResult = indexOfMax(results);
-            _map.ChangeDirection(actions[indexOfMaxResult].Degrees, actions[indexOfMaxResult].Direction, _speed);
-            _aim.ChangeDirection(actions[indexOfMaxResult].Degrees, actions[indexOfMaxResult].Direction, _speed);
-            _degreesOfDirection = (int)actions[indexOfMaxResult].Direction * 90 + actions[indexOfMaxResult].Degrees;
-            //MessageBox.Show("top " + topDistance.ToString() + " down " + downDistance.ToString() + " left " + leftDistance.ToString() + " right " + rightDistance.ToString());
-
-            //string str = ""; foreach (double d in results) str += d.ToString() + " "; MessageBox.Show(str);
-            textBox1.Text = qLearning.CountStates.ToString();
-            textBox2.Text = distanceToAim.ToString();
-
-            if (new int[]{ topDistance, downDistance, leftDistance, rightDistance }.Min() < 15)
+            if(outAction.Direction == actions[indexOfMaxResult].Direction && outAction.Degrees == actions[indexOfMaxResult].Degrees)
             {
-                Action outAction = qLearning.Step(new State(distanceToAim, new Point(_map.X, _map.Y)), actions, -15);
+                if (distanceToAim < 5) timer1.Enabled = false;
+                _map.ChangeDirection(actions[indexOfMaxResult].Degrees, actions[indexOfMaxResult].Direction, _speed);
+                _aim.ChangeDirection(actions[indexOfMaxResult].Degrees, actions[indexOfMaxResult].Direction, _speed);
+            }
+            else
+            {
                 results[outAction.NumberOfArray] = 1;
                 for (int step = 0; step < results.Length; step++) if (step != outAction.NumberOfArray) results[step] = 0;
                 _network.TeachNetwork(results);
                 _map.ReturnToStart();
                 _aim.ReturnToStart();
-                qLearning.SetAndUpdate(new State(distanceToAim, new Point(_map.X, _map.Y)), actions);
                 label1.Text = "Generation: " + ++generaton;
-                textBox3.Text = outAction.Degrees.ToString() + " - " + outAction.Direction.ToString();
             }
-            else
-            {
-                Action outAction = qLearning.Step(new State(distanceToAim, new Point(_map.X, _map.Y)), actions, int.MaxValue - distanceToAim * 5);
-                results[outAction.NumberOfArray] = 1;
-                _network.TeachNetwork(results);
-                textBox3.Text = outAction.Degrees.ToString() + " - " + outAction.Direction.ToString();
-            }
-            _network.DisposeNeurons();
+            textBox1.Text = qLearning.CountStates.ToString();
+            textBox2.Text = distanceToAim.ToString();
+            textBox3.Text = outAction.Degrees.ToString() + " - " + outAction.Direction.ToString();
+        }
+        private int FindDistance(Point firstLocation, Point secondLocation)
+        {
+            return Convert.ToInt32(Math.Sqrt(Math.Pow(secondLocation.X - firstLocation.X, 2) + Math.Pow(secondLocation.Y - firstLocation.Y, 2)));
         }
         public int FindObstacle(bool[,] map, Point position, int length, InGraphics.Moving.MoveTo direction)
         {
@@ -243,34 +261,6 @@ namespace Nt_Training
             }
             return int.MaxValue;
         }
-
-
-
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-            _map.MoveOn(5, InGraphics.Moving.MoveTo.left);
-            _aim.MoveOn(5, InGraphics.Moving.MoveTo.left);
-        }
-        private void button2_Click(object sender, EventArgs e)
-        {
-            _map.MoveOn(5, InGraphics.Moving.MoveTo.right);
-            _aim.MoveOn(5, InGraphics.Moving.MoveTo.right);
-        }
-        private void button3_Click(object sender, EventArgs e)
-        {
-            _map.MoveOn(5, InGraphics.Moving.MoveTo.down);
-            _aim.MoveOn(5, InGraphics.Moving.MoveTo.down);
-        }
-
-        private void button4_Click(object sender, EventArgs e)
-        {
-            _map.MoveOn(5, InGraphics.Moving.MoveTo.top);
-            _aim.MoveOn(5, InGraphics.Moving.MoveTo.top);
-        }
-
-
-
         private void button5_Click(object sender, EventArgs e)
         {
             if (timer1.Enabled) timer1.Enabled = false;
