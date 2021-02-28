@@ -43,11 +43,11 @@ namespace Nt_Training.SystemNetwork.Networks.LearningMethods
         private double _alpha;
         private double _eps;
         private double _discount; //штраф(Гамма)
-        private List<State> states;
-        public int CountStates { get => states.Count; }
+        private List<State> _states;
+        public int CountStates { get => _states.Count; }
         public QLearning(double alpha, double epsilon, double discount)
         {
-            states = new List<State>();
+            _states = new List<State>();
             _alpha = alpha;
             _eps = epsilon;
             _discount = discount; 
@@ -85,30 +85,30 @@ namespace Nt_Training.SystemNetwork.Networks.LearningMethods
             double q_value = action.q_value + t;
             action.q_value = q_value;
         }
-        double total_reward;
-        public double Total_Reward { get => total_reward; }
-        State state;
+        private double _total_reward;
+        public double Total_Reward { get => _total_reward; }
+        private State _state;
         private State NewOrOldState(T outState, Y[] outActions)
         {
             State.Action[] newActions = new State.Action[outActions.Length];
             for (int step = 0; step < newActions.Length; step++) newActions[step] = new State.Action(outActions[step]);
             State newState = new State(newActions, outState);
-            if (!states.Contains(newState)) states.Add(newState);
-            else foreach (State state in states) if (state.Equals(newState)) newState = state;
+            if (!_states.Contains(newState)) _states.Add(newState);
+            else foreach (State state in _states) if (state.Equals(newState)) newState = state;
             return newState;
         }
         public void SetAndUpdate(T outState, Y[] outActions) //Вызывается при каждом обновлении карты первым
         { //Теперь нужно придумать как одновременно передавать и состояние и действия для него
-            total_reward = 0.0;
-            state = NewOrOldState(outState, outActions);
+            _total_reward = 0.0;
+            _state = NewOrOldState(outState, outActions);
         }
         public Y Step(T nextState, Y[] outActions, double reward) //s - внешнее состояние
         {//Вызывается каждый ход
             State newState = NewOrOldState(nextState, outActions);
-            var a = Get_action(state); //Получаем Action от текущего State //Получается нужно найти State, который содержит s, но если создавать новый, то т.к. это ссылочный тип, оно будет считать их разными элементами
+            var a = Get_action(_state); //Получаем Action от текущего State //Получается нужно найти State, который содержит s, но если создавать новый, то т.к. это ссылочный тип, оно будет считать их разными элементами
             Update(a, newState, reward); //Нужно передавать action от текущего state - a
-            state = newState;
-            total_reward += reward;
+            _state = newState;
+            _total_reward += reward;
             return Get_action(newState).OutAction;
         }
     }

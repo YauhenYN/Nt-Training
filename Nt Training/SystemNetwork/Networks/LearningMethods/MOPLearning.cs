@@ -110,7 +110,7 @@ namespace Nt_Training.SystemNetwork.Networks.LearningMethods
         }
         private double Fsigmoid(double outValue) => (1 - outValue) * outValue;
         private double Ftangh(double outValue) => 1 - Math.Pow(outValue, 2);
-        public double MSEError(params double[] currentResults)
+        private double MSEError(params double[] currentResults)
         {
             double sum = 0;
             for(int step = 0; step < currentResults.Length; step++)
@@ -119,8 +119,8 @@ namespace Nt_Training.SystemNetwork.Networks.LearningMethods
             }
             return sum / currentResults.Length;
         }
-        public double RootMSEError(params double[] currentResults) => Math.Sqrt(MSEError(currentResults));
-        public double ArctanError(params double[] currentResults)
+        private double RootMSEError(params double[] currentResults) => Math.Sqrt(MSEError(currentResults));
+        private double ArctanError(params double[] currentResults)
         {
             double sum = 0;
             for(int step = 0; step < _waitingResults.Length; step++)

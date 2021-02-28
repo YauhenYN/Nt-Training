@@ -10,10 +10,10 @@ namespace Nt_Training.InGraphics._2D
 {
     public class SimpleGMap<T> : Moving, ILocation where T : IDraw, IFill, IFigureParameters, ILocation
     {
-        T[,] _map;
-        int _blockPx;
-        int _x;
-        int _y;
+        private T[,] _map;
+        private int _blockPx;
+        private int _x;
+        private int _y;
         public int X { get => _x; set => _x = value; }
         public int Y { get => _y; set => _y = value; }
 
@@ -103,7 +103,7 @@ namespace Nt_Training.InGraphics._2D
             _x = 0;
             _y = 0;
         }
-        public bool[,] getAreaMap(Rectangle localArea) //ПЕРЕРАБОТАТЬ
+        public bool[,] GetAreaMap(Rectangle localArea) //ПЕРЕРАБОТАТЬ
         {
             /*Bitmap bitmap = new Bitmap(_map.GetLength(1) * _blockPx, _map.GetLength(0) * _blockPx);
             FillOn(bitmap);

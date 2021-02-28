@@ -52,17 +52,16 @@ namespace Nt_Training
         {
             Application.Exit();
         }
-        InGraphics.Drawing _drawing;
-        SimpleGMap<GRectangle> _map;
-        SimpleGElement<GRectangle> _character;
-        SimpleGElement<GRectangle> _aim;
-        Point locationOfCharacter;
-        Point locationOfAim;
-        SystemNetwork.Networks.Network _network;
-        SystemNetwork.Networks.LearningMethods.QLearning<State, Action> qLearning;
-        int _degreesOfDirection; //ПЕРЕДЕЛАТЬ
+        private InGraphics.Drawing _drawing;
+        private SimpleGMap<GRectangle> _map;
+        private SimpleGElement<GRectangle> _character;
+        private SimpleGElement<GRectangle> _aim;
+        private Point locationOfCharacter, locationOfAim;
+        private SystemNetwork.Networks.Network _network;
+        private SystemNetwork.Networks.LearningMethods.QLearning<State, Action> qLearning;
+        private int _degreesOfDirection; //ПЕРЕДЕЛАТЬ
         private double _speed;
-        Thread _drawingThread;
+        private Thread _drawingThread;
         private void GraphicsForm_Shown(object sender, EventArgs e)
         {
             locationOfCharacter.X = 100;
@@ -71,10 +70,8 @@ namespace Nt_Training
             locationOfAim.Y = 50;
             _speed = 1;
             _map = new SimpleGMap<GRectangle>(100, 100, 15);
-            _map.SetDegreeParameters();
             _character = new SimpleGElement<GRectangle>(new GRectangle(new Rectangle(locationOfCharacter.X, locationOfCharacter.Y, 30, 30), Color.Blue));
             _aim = new SimpleGElement<GRectangle>(new GRectangle(new Rectangle(locationOfAim.X, locationOfAim.Y, 30, 30), Color.Green));
-            _aim.SetDegreeParameters();
             _aim.FixPosition();
             for (int step = 0; step < 99; step++)
             {
@@ -157,13 +154,13 @@ namespace Nt_Training
             TeachQLearning();
             timer1.Enabled = true;
         }
-        public void TeachQLearning()
+        private void TeachQLearning()
         {
             for (int distanceToAim = FindDistance(locationOfCharacter, new Point(_aim.X, _aim.Y)); distanceToAim > 5; distanceToAim = FindDistance(locationOfCharacter, new Point(_aim.X, _aim.Y)))
             {
                 _map.MoveByDegrees();
                 _aim.MoveByDegrees();
-                bool[,] map = _map.getAreaMap(new Rectangle(locationOfCharacter.X - radiusOfAreaMap, locationOfCharacter.Y - radiusOfAreaMap, radiusOfAreaMap * 2, radiusOfAreaMap * 2));
+                bool[,] map = _map.GetAreaMap(new Rectangle(locationOfCharacter.X - radiusOfAreaMap, locationOfCharacter.Y - radiusOfAreaMap, radiusOfAreaMap * 2, radiusOfAreaMap * 2));
                 Point location = new Point(radiusOfAreaMap, radiusOfAreaMap);
                 int topDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.top);
                 int downDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.down);
@@ -186,7 +183,7 @@ namespace Nt_Training
             _map.ReturnToStart();
             _aim.ReturnToStart();
         }
-        Action[] actions = { new Action(90, InGraphics.Moving.Direction.downright, 0), new Action(0, InGraphics.Moving.Direction.topright, 1), new Action(90, InGraphics.Moving.Direction.topleft, 2), new Action(0, InGraphics.Moving.Direction.downleft, 3), new Action(45, InGraphics.Moving.Direction.topleft, 4), new Action(45, InGraphics.Moving.Direction.downleft, 5), new Action(45, InGraphics.Moving.Direction.downright, 6), new Action(45, InGraphics.Moving.Direction.topright, 7)};
+        private Action[] actions = { new Action(90, InGraphics.Moving.Direction.downright, 0), new Action(0, InGraphics.Moving.Direction.topright, 1), new Action(90, InGraphics.Moving.Direction.topleft, 2), new Action(0, InGraphics.Moving.Direction.downleft, 3), new Action(45, InGraphics.Moving.Direction.topleft, 4), new Action(45, InGraphics.Moving.Direction.downleft, 5), new Action(45, InGraphics.Moving.Direction.downright, 6), new Action(45, InGraphics.Moving.Direction.topright, 7)};
         private int generaton = 0;
         private int radiusOfAreaMap = 200;
         private void timer1_Tick(object sender, EventArgs e)
@@ -197,13 +194,14 @@ namespace Nt_Training
             }
             _map.MoveByDegrees();
             _aim.MoveByDegrees();
-            bool[,] map = _map.getAreaMap(new Rectangle(locationOfCharacter.X - radiusOfAreaMap, locationOfCharacter.Y - radiusOfAreaMap, radiusOfAreaMap * 2, radiusOfAreaMap * 2));
+            bool[,] map = _map.GetAreaMap(new Rectangle(locationOfCharacter.X - radiusOfAreaMap, locationOfCharacter.Y - radiusOfAreaMap, radiusOfAreaMap * 2, radiusOfAreaMap * 2));
             int distanceToAim = FindDistance(locationOfCharacter, new Point(_aim.X, _aim.Y));
             Point location = new Point(radiusOfAreaMap, radiusOfAreaMap);
             int topDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.top);
             int downDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.down);
             int leftDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.left);
             int rightDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.right);
+            //А СКОЛЬКО БУДЕТ INT.MAXVALUE / 200? И ЭТО ПОДАЁТСЯ НА ВХОДЫ!!!
             Action outAction = qLearning.Step(new State(distanceToAim, new Point(_map.X, _map.Y)), actions, int.MaxValue - distanceToAim * 5); //STEP - УБРАТЬ
             double[] results = _network.Start(distanceToAim / 1000, _degreesOfDirection / 360, (double)topDistance / radiusOfAreaMap, (double)downDistance / radiusOfAreaMap, (double)leftDistance / radiusOfAreaMap, (double)rightDistance / radiusOfAreaMap);
             //_degreesOfDirection - ПЕРЕДЕЛАТЬ

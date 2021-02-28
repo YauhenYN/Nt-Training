@@ -14,7 +14,7 @@ namespace Nt_Training.SystemNetwork.Neurons
             _outputBonds = new List<Bonds.Bond>();
             _inputBonds = new List<Bonds.Bond>();
         }
-        List<Bonds.Bond> _inputBonds;
+        private List<Bonds.Bond> _inputBonds;
         public Bonds.Bond[] InputBonds { get { return _inputBonds.ToArray(); } }
         public void AddInputBond(Bonds.Bond bond)
         {
@@ -22,7 +22,7 @@ namespace Nt_Training.SystemNetwork.Neurons
         }
         public void RemoveInputBond(Bonds.Bond bond) => _inputBonds.Remove(bond);
 
-        List<Bonds.Bond> _outputBonds;
+        private List<Bonds.Bond> _outputBonds;
         public Bonds.Bond[] OutputBonds { get { return _outputBonds.ToArray(); } }
         public void AddOutputBond(Bonds.Bond bond)
         {

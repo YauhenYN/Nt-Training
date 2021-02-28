@@ -9,10 +9,10 @@ namespace Nt_Training.SystemNetwork.Networks
 {
     public class Network
     {
-        Layers.InputLayer _inputLayer;
-        List<Layers.HiddenLayer> _averageLayers;
-        Layers.OutputLayer _outputLayer;
-        Neurons.ActivationFunctions.ActivationFuncton _activationFunction;
+        private Layers.InputLayer _inputLayer;
+        private List<Layers.HiddenLayer> _averageLayers;
+        private Layers.OutputLayer _outputLayer;
+        private Neurons.ActivationFunctions.ActivationFuncton _activationFunction;
         public double[] currentResults { get; private set; }
         public Network(Neurons.ActivationFunctions.ActivationFuncton function)
         {
@@ -63,7 +63,7 @@ namespace Nt_Training.SystemNetwork.Networks
             foreach (Layers.HiddenLayer averageLayer in _averageLayers) foreach (Neurons.HiddenNeuron averageNeuron in averageLayer.AverageNeurons) averageNeuron.ClearValue();
             foreach (Neurons.OutputNeuron outputNeuron in _outputLayer.OutputNeurons) outputNeuron.ClearValue(); 
         }
-        LearningMethods.Learning _learning;
+        private LearningMethods.Learning _learning;
         public void SetTeaching(LearningMethods.Learning learning)
         {
             _learning = learning;

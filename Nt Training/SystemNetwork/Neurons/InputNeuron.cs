@@ -9,7 +9,7 @@ namespace Nt_Training.SystemNetwork.Neurons
     public class InputNeuron : Neuron
     {
         public InputNeuron() =>  _outPutBonds = new List<Bonds.Bond>();
-        List<Bonds.Bond> _outPutBonds;
+        private List<Bonds.Bond> _outPutBonds;
         public Bonds.Bond[] OutPutBonds { get { return _outPutBonds.ToArray(); } }
         public void AddOutPutBond(Bonds.Bond bond)
         {

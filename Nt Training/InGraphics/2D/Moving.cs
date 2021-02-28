@@ -18,13 +18,10 @@ namespace Nt_Training.InGraphics
             topright
         }
         public Moving() { }
-        double _sumX, _sumY;
-        public void SetDegreeParameters()
-        {
-        }
-        int _lastLeftDegrees;
-        Direction _lastDirection;
-        double _lastSpeed;
+        private double _sumX, _sumY;
+        private int _lastLeftDegrees;
+        private Direction _lastDirection;
+        private double _lastSpeed;
         public void ChangeDirection(int leftDegrees, Direction direction, double speed)
         {
             if (_lastLeftDegrees != leftDegrees || _lastDirection != direction || _lastSpeed != speed)
@@ -56,7 +53,7 @@ namespace Nt_Training.InGraphics
                 _lastSpeed = speed;
             }
         }
-        double _xBuffer, _yBuffer;
+        private double _xBuffer, _yBuffer;
         protected Point GetAddingPoint()
         {
             _xBuffer += _sumX;
@@ -66,7 +63,6 @@ namespace Nt_Training.InGraphics
             if (Math.Abs(_yBuffer) >= 1) _yBuffer -= (int)_yBuffer;
             return outPoint;
         }
-        //Бляяя, он не хочет идти, т.к каждый ход он вызыват ChangeDirection и GetAddingPoint по 1-ому разу
         protected static MovingToSide[] sides { get; } = { new MovingUp(), new MovingDown(), new MovingToLeft(), new MovingToRight() };
         public enum MoveTo
         {
