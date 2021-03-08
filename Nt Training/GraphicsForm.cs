@@ -10,6 +10,9 @@ using System.Windows.Forms;
 using System.Threading;
 using Nt_Training.InGraphics._2D;
 using Nt_Training.InGraphics._2D.StandardDrawingElements;
+using System.IO;
+using System.Text.Json;
+
 namespace Nt_Training
 {
     public partial class GraphicsForm : Form
@@ -19,6 +22,27 @@ namespace Nt_Training
             InitializeComponent();
             SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
             UpdateStyles();
+        }
+        public GraphicsForm(string path) : this()
+        {
+            _path = path;
+            TextReader tr = new StreamReader(path);
+            string str = tr.ReadLine();
+            tr.Close();
+            Integration integrated = JsonSerializer.Deserialize<Integration>(str);
+            qLearning = new SystemNetwork.Networks.LearningMethods.QLearning<State, Action>(integrated._alpha, integrated._eps, integrated._discount);
+            State[] states = new State[integrated.locations.Length];
+            for(int step = 0; step < states.Length; step++)
+            {
+                states[step] = new State(integrated.distancesToAim[step], integrated.locations[step]);
+            }
+            List<List<Action>> actions = new List<List<Action>>();
+            for (int step = 0; step < integrated.q_values.Count; step++) actions.Add(new List<Action>(this.actions));
+            qLearning.Integrate(states, actions, integrated.q_values);
+            textBox4.Text = integrated._alpha.ToString();
+            textBox5.Text = integrated._eps.ToString();
+            textBox6.Text = integrated._discount.ToString();
+            isFirst = false;
         }
         struct Action
         {
@@ -50,6 +74,7 @@ namespace Nt_Training
         }
         private void GraphicsForm_FormClosing(object sender, FormClosingEventArgs e)
         {
+            _drawingThread.Abort();
             Application.Exit();
         }
         private InGraphics.Drawing _drawing;
@@ -59,7 +84,7 @@ namespace Nt_Training
         private Point locationOfCharacter, locationOfAim;
         private SystemNetwork.Networks.Network _network;
         private SystemNetwork.Networks.LearningMethods.QLearning<State, Action> qLearning;
-        private int _degreesOfDirection; //ПЕРЕДЕЛАТЬ
+        private int _degreesOfDirection;
         private double _speed;
         private Thread _drawingThread;
         private void GraphicsForm_Shown(object sender, EventArgs e)
@@ -147,16 +172,40 @@ namespace Nt_Training
 
             label1.Text = "Generation: " + generaton;
 
-            qLearning = new SystemNetwork.Networks.LearningMethods.QLearning<State, Action>(0.9, 0.05, 0.9);
-            qLearning.SetAndUpdate(new State(FindDistance(locationOfCharacter, new Point(_aim.X, _aim.Y)), new Point(_map.X, _map.Y)), actions); //distance - расстояние от объекта до конечной цели, Location - позиция самой карты
             _drawingThread = new Thread(new ThreadStart(() => { while (true) { _drawing.Draw(); _drawing.DisposeBuffer(); _drawing.RefreshBuffer(); } }));
             _drawingThread.Start();
-            TeachQLearning();
-            timer1.Enabled = true;
         }
+        private async void TeachQLearningAsync()
+        {
+            await Task.Run(() => TeachQLearning());
+        }
+        bool isQTeaches;
+        delegate void SetTextCallback(string firstText, string secondText);
+        private void SetTextBoxes(string firstText, string secondText)
+        {
+            if (textBox1.InvokeRequired)
+            {
+                SetTextCallback d = new SetTextCallback(SetTextBoxes);
+                Invoke(d, new object[] { firstText, secondText });
+            }
+            else
+            {
+                textBox1.Text = firstText;
+                textBox2.Text = secondText;
+            }
+        }
+        bool isTeached;
+        bool isFirst = true;
         private void TeachQLearning()
         {
-            for (int distanceToAim = FindDistance(locationOfCharacter, new Point(_aim.X, _aim.Y)); distanceToAim > 5; distanceToAim = FindDistance(locationOfCharacter, new Point(_aim.X, _aim.Y)))
+            isQTeaches = true;
+            if (isFirst)
+            {
+                qLearning = new SystemNetwork.Networks.LearningMethods.QLearning<State, Action>(Convert.ToDouble(textBox4.Text), Convert.ToDouble(textBox5.Text), Convert.ToDouble(textBox6.Text));
+                isFirst = false;
+            }
+            qLearning.SetAndUpdate(new State(FindDistance(locationOfCharacter, new Point(_aim.X, _aim.Y)), new Point(_map.X, _map.Y)), actions);
+            for (int distanceToAim = FindDistance(locationOfCharacter, new Point(_aim.X, _aim.Y)); distanceToAim > 5 && isQTeaches; distanceToAim = FindDistance(locationOfCharacter, new Point(_aim.X, _aim.Y)))
             {
                 _map.MoveByDegrees();
                 _aim.MoveByDegrees();
@@ -172,6 +221,7 @@ namespace Nt_Training
                     _map.ReturnToStart();
                     _aim.ReturnToStart();
                     qLearning.SetAndUpdate(new State(distanceToAim, new Point(_map.X, _map.Y)), actions);
+                    SetTextBoxes(qLearning.CountStates.ToString(), distanceToAim.ToString());
                 }
                 else
                 {
@@ -179,15 +229,18 @@ namespace Nt_Training
                     _map.ChangeDirection(outAction.Degrees, outAction.Direction, _speed);
                     _aim.ChangeDirection(outAction.Degrees, outAction.Direction, _speed);
                 }
+                if (distanceToAim < 10) isTeached = true;
             }
             _map.ReturnToStart();
             _aim.ReturnToStart();
+            isQTeaches = false;
         }
         private Action[] actions = { new Action(90, InGraphics.Moving.Direction.downright, 0), new Action(0, InGraphics.Moving.Direction.topright, 1), new Action(90, InGraphics.Moving.Direction.topleft, 2), new Action(0, InGraphics.Moving.Direction.downleft, 3), new Action(45, InGraphics.Moving.Direction.topleft, 4), new Action(45, InGraphics.Moving.Direction.downleft, 5), new Action(45, InGraphics.Moving.Direction.downright, 6), new Action(45, InGraphics.Moving.Direction.topright, 7)};
         private int generaton = 0;
         private int radiusOfAreaMap = 200;
         private void timer1_Tick(object sender, EventArgs e)
         {
+            timer1.Interval = 1000 / Convert.ToInt32(textBox7.Text);
             int indexOfMax(double[] results)
             {
                 int index = 0; for (int step = 0; step < results.Length; step++) if (results[step] > results[index]) index = step; return index;
@@ -201,10 +254,8 @@ namespace Nt_Training
             int downDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.down);
             int leftDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.left);
             int rightDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.right);
-            //А СКОЛЬКО БУДЕТ INT.MAXVALUE / 200? И ЭТО ПОДАЁТСЯ НА ВХОДЫ!!!
-            Action outAction = qLearning.Step(new State(distanceToAim, new Point(_map.X, _map.Y)), actions, int.MaxValue - distanceToAim * 5); //STEP - УБРАТЬ
+            Action outAction = qLearning.Step(new State(distanceToAim, new Point(_map.X, _map.Y)), actions, int.MaxValue - distanceToAim * 5);
             double[] results = _network.Start(distanceToAim / 1000, _degreesOfDirection / 360, (double)topDistance / radiusOfAreaMap, (double)downDistance / radiusOfAreaMap, (double)leftDistance / radiusOfAreaMap, (double)rightDistance / radiusOfAreaMap);
-            //_degreesOfDirection - ПЕРЕДЕЛАТЬ
             int indexOfMaxResult = indexOfMax(results);
             if(outAction.Direction == actions[indexOfMaxResult].Direction && outAction.Degrees == actions[indexOfMaxResult].Degrees)
             {
@@ -261,14 +312,128 @@ namespace Nt_Training
         }
         private void button5_Click(object sender, EventArgs e)
         {
-            if (timer1.Enabled) timer1.Enabled = false;
-            else timer1.Enabled = true;
+
+        }
+        private void button1_Click(object sender, EventArgs e)
+        {
+            if (comboBox1.SelectedIndex == 0 && timer1.Enabled == false)
+            {
+                if (!isQTeaches) { TeachQLearningAsync(); isQTeaches = true; }
+                else if (isQTeaches) { isQTeaches = false; }
+            }
+            else if (comboBox1.SelectedIndex == 1 && !isQTeaches && qLearning != null)
+            {
+                if (timer1.Enabled == false) { qLearning.SetAndUpdate(new State(FindDistance(locationOfCharacter,
+                    new Point(_aim.X, _aim.Y)), new Point(_map.X, _map.Y)), actions); timer1.Enabled = true; }
+                else timer1.Enabled = false;
+            }
+            else if(comboBox1.SelectedIndex == 2)
+            {
+                if (isTeached && timer1.Enabled == false)
+                {
+                    if (!isQTeaches) { TeachQLearningAsync(); isQTeaches = true; }
+                    else if (isQTeaches) { isQTeaches = false; }
+                }
+                else if(!isQTeaches)
+                {
+                    if (timer1.Enabled == false) timer1.Enabled = true;
+                    else timer1.Enabled = false;
+                }
+            }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            if (isTeached && comboBox1.SelectedIndex == 2)
+            {
+                if (comboBox2.SelectedIndex == 1)
+                {
+                    Physics.Wind(ref _degreesOfDirection, ref _speed, 0.2);
+                }
+            }
+        }
+
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (_path != null && _path.Length > 0)
+            {
+                SystemNetwork.Networks.LearningMethods.QLearning<State, Action>.Integration integration = qLearning.GetIntegration();
+                Integration inIntegration = new Integration();
+                inIntegration.q_values = integration.q_values;
+                inIntegration._alpha = integration._alpha;
+                inIntegration._discount = integration._discount;
+                inIntegration._eps = integration._eps;
+                inIntegration.locations = new Point[integration.outStates.Length];
+                inIntegration.distancesToAim = new int[integration.outStates.Length];
+                for (int step = 0; step < integration.outStates.Length; step++)
+                {
+                    inIntegration.locations[step] = integration.outStates[step].Location;
+                    inIntegration.distancesToAim[step] = integration.outStates[step].DistanceToAim;
+                }
+                string wPage = JsonSerializer.Serialize<Integration>(inIntegration);
+                File.WriteAllText(_path, wPage);
+            }
+        }
+        public class Integration
+        {
+            public Point[] locations { get; set; }
+            public List<List<double>> q_values { get; set; }
+            public int[] distancesToAim { get; set; }
+            public double _alpha { get; set; }
+            public double _eps { get; set; }
+            public double _discount { get; set; }
+        }
+        string _path;
+        private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FileDialog fileDialog = new SaveFileDialog();
+            fileDialog.DefaultExt = "nt";
+            fileDialog.Filter = "(*.nt)|*.nt";
+            fileDialog.ShowDialog();
+            if (fileDialog.FileName.Length > 0 && qLearning != null)
+            {
+                SystemNetwork.Networks.LearningMethods.QLearning<State, Action>.Integration integration = qLearning.GetIntegration();
+                Integration inIntegration = new Integration();
+                inIntegration.q_values = integration.q_values;
+                inIntegration._alpha = integration._alpha;
+                inIntegration._discount = integration._discount;
+                inIntegration._eps = integration._eps;
+                inIntegration.locations = new Point[integration.outStates.Length];
+                inIntegration.distancesToAim = new int[integration.outStates.Length];
+                for(int step = 0; step < integration.outStates.Length; step++)
+                {
+                    inIntegration.locations[step] = integration.outStates[step].Location;
+                    inIntegration.distancesToAim[step] = integration.outStates[step].DistanceToAim;
+                }
+                string wPage = JsonSerializer.Serialize<Integration>(inIntegration);
+                File.WriteAllText(fileDialog.FileName, wPage);
+                _path = fileDialog.FileName;
+            }
+        }
+
+        private void GraphicsForm_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if ((e.KeyChar < 47 || e.KeyChar > 58) && (e.KeyChar != 08 || ((TextBox)sender).Text.Length < 3))
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void textBox7_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if ((e.KeyChar < 47 || e.KeyChar > 58) && e.KeyChar != 08)
+            {
+                e.Handled = true;
+            }
         }
 
         private void button6_Click(object sender, EventArgs e)
         {
-            _map.ReturnToStart();
-            _aim.ReturnToStart();
+            if (comboBox1.SelectedIndex != 0)
+            {
+                _map.ReturnToStart();
+                _aim.ReturnToStart();
+            }
         }
     }
 }

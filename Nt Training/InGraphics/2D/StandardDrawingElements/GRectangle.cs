@@ -7,7 +7,7 @@ using System.Drawing;
 
 namespace Nt_Training.InGraphics._2D.StandardDrawingElements
 {
-    public class GRectangle : IDraw, IFill, IFigureParameters, ILocation // ИЗМЕНИТЬ MOVING
+    public class GRectangle : IDraw, IFill, IFigureParameters, ILocation
     {
         public Rectangle Rectangle { get; private set; }
         public int X { get => Rectangle.X; set => Rectangle = new Rectangle(value, Y, Width, Heigh); }

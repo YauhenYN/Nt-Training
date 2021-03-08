@@ -22,5 +22,18 @@ namespace Nt_Training
             new GraphicsForm().Show();
             this.Hide();
         }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            FileDialog fileDialog = new OpenFileDialog();
+            fileDialog.DefaultExt = "nt";
+            fileDialog.Filter = "(*.nt)|*.nt";
+            fileDialog.ShowDialog();
+            if (fileDialog.FileName.Length > 0)
+            {
+                new GraphicsForm(fileDialog.FileName).Show();
+                this.Hide();
+            }
+        }
     }
 }

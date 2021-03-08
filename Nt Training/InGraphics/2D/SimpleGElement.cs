@@ -48,7 +48,7 @@ namespace Nt_Training.InGraphics._2D
             Element.Y += addingPoint.Y;
         }
         /// <summary>
-        /// When necessary to use several parameters
+        /// When it's necessary to use several parameters
         /// </summary>
         public virtual void MoveByDegrees(Point addingPoint)
         {

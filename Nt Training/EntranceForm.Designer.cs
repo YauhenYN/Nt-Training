@@ -34,7 +34,9 @@
             // 
             // toGraphicsForm
             // 
-            this.toGraphicsForm.Location = new System.Drawing.Point(291, 214);
+            this.toGraphicsForm.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.toGraphicsForm.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.toGraphicsForm.Location = new System.Drawing.Point(21, 91);
             this.toGraphicsForm.Name = "toGraphicsForm";
             this.toGraphicsForm.Size = new System.Drawing.Size(187, 47);
             this.toGraphicsForm.TabIndex = 0;
@@ -44,20 +46,24 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(291, 267);
+            this.button1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button1.Location = new System.Drawing.Point(21, 144);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(187, 47);
             this.button1.TabIndex = 1;
             this.button1.Text = "Загрузить";
             this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // EntranceForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(235, 296);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.toGraphicsForm);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Name = "EntranceForm";
             this.Text = "EntranceForm";
             this.ResumeLayout(false);

@@ -9,8 +9,8 @@ namespace Nt_Training.SystemNetwork.Networks.LearningMethods
 {
     public class MOPLearning : Learning
     {
-        public double SpeedE { get; set; } //НУЖНО УСТАНАВЛИВАТЬ
-        public double MomentA { get; set; } //НУЖНО УСТАНАВЛИВАТЬ
+        public double SpeedE { get; set; }
+        public double MomentA { get; set; }
         public double ErrorCount { get; private set; }
         class DeltaNeuron
         {

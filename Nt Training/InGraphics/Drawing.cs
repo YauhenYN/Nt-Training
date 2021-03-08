@@ -17,7 +17,7 @@ namespace Nt_Training.InGraphics
         public delegate void DrawingHandler(Bitmap GraphicsBuffer);
         public event DrawingHandler OnDraw;
         Control _control;
-        Color _backColor; //ЗАМЕНИТЬ НА НОРМАЛЬНЫЙ ЭЛЕМЕНТ, ЛУЧШЕ СТРУКТУРУ ГДЕ МОЖНО БЫЛО БЫ ИСПОЛЬЗОВАТЬ ЛИБО ЦВЕТ, ЛИБО КАРТИНКУ
+        Color _backColor; 
         Bitmap _graphicsBuffer { get; set; }
         public Drawing SetBuffer(Control control, Color backColor)
         {

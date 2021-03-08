@@ -11,6 +11,14 @@ namespace Nt_Training.SystemNetwork.Networks.LearningMethods
     //СТРАТЕГИЯ ЗАКЛЮЧАЕТСЯ В ВЫБОРЕ НАИЛУЧШЕГО ДЕЙСТВИЯ В СООТВЕТCТВИИ С ОЦЕНКАМИ Q
     public class QLearning<T, Y> where T : struct, IEquatable<T> where Y : struct
     {
+        public class Integration
+        {
+            public T[] outStates { get; set; }
+            public double _alpha { get; set; }
+            public double _eps { get; set; }
+            public double _discount { get; set; }
+            public List<List<double>> q_values { get; set; }
+        }
         private class State : IEquatable<State>
         {
             public class Action
@@ -110,6 +118,34 @@ namespace Nt_Training.SystemNetwork.Networks.LearningMethods
             _state = newState;
             _total_reward += reward;
             return Get_action(newState).OutAction;
+        }
+        public Integration GetIntegration()
+        {
+            Integration integration = new Integration();
+            T[] states = new T[_states.Count];
+            List<List<double>> q_values = new List<List<double>>();
+            for(int step = 0; step < states.Length; step++)
+            {
+                states[step] = _states[step].OutState;
+                List<double> inQ_values = new List<double>();
+                for (int inStep = 0; inStep < _states[step].actions.Count; inStep++) inQ_values.Add(_states[step].actions[inStep].q_value);
+                q_values.Add(inQ_values);
+            }
+            integration.outStates = states;
+            integration.q_values = q_values;
+            integration._alpha = _alpha;
+            integration._eps = _eps;
+            integration._discount = _discount;
+            return integration;
+        }
+        public void Integrate(T[] states, List<List<Y>> actions, List<List<double>> q_values)
+        {
+            for (int step = 0; step < states.Length; step++)
+            {
+                State.Action[] newActions = new State.Action[q_values[step].Count];
+                for (int inStep = 0; inStep < newActions.Length; inStep++) newActions[inStep] = new State.Action(actions[step][inStep], q_values[step][inStep]);
+                _states.Add(new State(newActions, states[step]));
+            }
         }
     }
 }

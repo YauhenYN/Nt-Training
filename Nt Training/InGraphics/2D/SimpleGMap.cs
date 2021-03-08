@@ -77,7 +77,6 @@ namespace Nt_Training.InGraphics._2D
                         _map[step, inStep].Y += addingPoint.Y;
                     }
             }
-            //MessageBox.Show(addingPoint.X.ToString() + "     -     " + addingPoint.Y.ToString());
         }
         public void SetBlock(int numberOfLine, int numberOfColumn, T drawingElement)
         {
@@ -103,7 +102,7 @@ namespace Nt_Training.InGraphics._2D
             _x = 0;
             _y = 0;
         }
-        public bool[,] GetAreaMap(Rectangle localArea) //ПЕРЕРАБОТАТЬ
+        public bool[,] GetAreaMap(Rectangle localArea)
         {
             /*Bitmap bitmap = new Bitmap(_map.GetLength(1) * _blockPx, _map.GetLength(0) * _blockPx);
             FillOn(bitmap);
