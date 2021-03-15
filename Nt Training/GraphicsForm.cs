@@ -12,6 +12,7 @@ using Nt_Training.InGraphics._2D;
 using Nt_Training.InGraphics._2D.StandardDrawingElements;
 using System.IO;
 using System.Text.Json;
+using System.Globalization;
 
 namespace Nt_Training
 {
@@ -39,9 +40,9 @@ namespace Nt_Training
             List<List<Action>> actions = new List<List<Action>>();
             for (int step = 0; step < integrated.q_values.Count; step++) actions.Add(new List<Action>(this.actions));
             qLearning.Integrate(states, actions, integrated.q_values);
-            textBox4.Text = integrated._alpha.ToString();
-            textBox5.Text = integrated._eps.ToString();
-            textBox6.Text = integrated._discount.ToString();
+            textBox4.Text = integrated._alpha.ToString(CultureInfo.InvariantCulture);
+            textBox5.Text = integrated._eps.ToString(CultureInfo.InvariantCulture);
+            textBox6.Text = integrated._discount.ToString(CultureInfo.InvariantCulture);
             isFirst = false;
         }
         struct Action
@@ -140,17 +141,17 @@ namespace Nt_Training
             {
                 foreach(SystemNetwork.Neurons.HiddenNeuron averageNeuron in averageNeurons)
                 {
-                    bonds.Add(new SystemNetwork.Bonds.Bond(inputNeuron, averageNeuron, Convert.ToDouble(rand.Next(-50, 50)) / 100));
+                    bonds.Add(new SystemNetwork.Bonds.Bond(inputNeuron, averageNeuron, Convert.ToDouble(rand.Next(-100, 100)) / 100));
                     inputNeuron.AddOutPutBond(bonds.Last());
                     averageNeuron.AddInputBond(bonds.Last());
                     foreach (SystemNetwork.Neurons.HiddenNeuron averageNeuron1 in averageNeurons1)
                     {
-                        bonds.Add(new SystemNetwork.Bonds.Bond(averageNeuron, averageNeuron1, Convert.ToDouble(rand.Next(-50, 50)) / 100));
+                        bonds.Add(new SystemNetwork.Bonds.Bond(averageNeuron, averageNeuron1, Convert.ToDouble(rand.Next(-100, 100)) / 100));
                         averageNeuron.AddOutputBond(bonds.Last());
                         averageNeuron1.AddInputBond(bonds.Last());
                         foreach (SystemNetwork.Neurons.OutputNeuron outputNeuron in outputNeurons)
                         {
-                            bonds.Add(new SystemNetwork.Bonds.Bond(averageNeuron1, outputNeuron, Convert.ToDouble(rand.Next(-50, 50)) / 100));
+                            bonds.Add(new SystemNetwork.Bonds.Bond(averageNeuron1, outputNeuron, Convert.ToDouble(rand.Next(-100, 100)) / 100));
                             averageNeuron1.AddOutputBond(bonds.Last());
                             outputNeuron.AddInputBond(bonds.Last());
                         }
@@ -167,7 +168,7 @@ namespace Nt_Training
             _network.AddAverageLayer(averageLayer);
             _network.AddAverageLayer(averageLayer1);
             _network.AddOutPutNeurons(outputNeurons);
-            SystemNetwork.Networks.LearningMethods.Learning learning = new SystemNetwork.Networks.LearningMethods.MOPLearning() { SpeedE = 0.2, MomentA = 0.3 };
+            SystemNetwork.Networks.LearningMethods.Learning learning = new SystemNetwork.Networks.LearningMethods.MOPLearning() { SpeedE = 0.7, MomentA = 0.9 };
             _network.SetTeaching(learning);
 
             label1.Text = "Generation: " + generaton;
@@ -201,38 +202,46 @@ namespace Nt_Training
             isQTeaches = true;
             if (isFirst)
             {
-                qLearning = new SystemNetwork.Networks.LearningMethods.QLearning<State, Action>(Convert.ToDouble(textBox4.Text), Convert.ToDouble(textBox5.Text), Convert.ToDouble(textBox6.Text));
+                qLearning = new SystemNetwork.Networks.LearningMethods.QLearning<State, Action>
+                    (
+                    Convert.ToDouble(textBox4.Text, CultureInfo.InvariantCulture), 
+                    Convert.ToDouble(textBox5.Text.Replace(",", "."), CultureInfo.InvariantCulture), 
+                    Convert.ToDouble(textBox6.Text.Replace(",", "."), CultureInfo.InvariantCulture)
+                    );
                 isFirst = false;
             }
             qLearning.SetAndUpdate(new State(FindDistance(locationOfCharacter, new Point(_aim.X, _aim.Y)), new Point(_map.X, _map.Y)), actions);
-            for (int distanceToAim = FindDistance(locationOfCharacter, new Point(_aim.X, _aim.Y)); distanceToAim > 5 && isQTeaches; distanceToAim = FindDistance(locationOfCharacter, new Point(_aim.X, _aim.Y)))
+            for (int step = 0; isQTeaches; step++)
             {
-                _map.MoveByDegrees();
-                _aim.MoveByDegrees();
-                bool[,] map = _map.GetAreaMap(new Rectangle(locationOfCharacter.X - radiusOfAreaMap, locationOfCharacter.Y - radiusOfAreaMap, radiusOfAreaMap * 2, radiusOfAreaMap * 2));
-                Point location = new Point(radiusOfAreaMap, radiusOfAreaMap);
-                int topDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.top);
-                int downDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.down);
-                int leftDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.left);
-                int rightDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.right);
-                if (new int[] { topDistance, downDistance, leftDistance, rightDistance }.Min() < 15)
+                for (int distanceToAim = FindDistance(locationOfCharacter, new Point(_aim.X, _aim.Y)); distanceToAim > 5 && isQTeaches; distanceToAim = FindDistance(locationOfCharacter, new Point(_aim.X, _aim.Y)))
                 {
-                    qLearning.Step(new State(distanceToAim, new Point(_map.X, _map.Y)), actions, double.MinValue);
-                    _map.ReturnToStart();
-                    _aim.ReturnToStart();
-                    qLearning.SetAndUpdate(new State(distanceToAim, new Point(_map.X, _map.Y)), actions);
-                    SetTextBoxes(qLearning.CountStates.ToString(), distanceToAim.ToString());
+                    _map.MoveByDegrees();
+                    _aim.MoveByDegrees();
+                    bool[,] map = _map.GetAreaMap(new Rectangle(locationOfCharacter.X - radiusOfAreaMap, locationOfCharacter.Y - radiusOfAreaMap, radiusOfAreaMap * 2, radiusOfAreaMap * 2));
+                    Point location = new Point(radiusOfAreaMap, radiusOfAreaMap);
+                    int topDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.top);
+                    int downDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.down);
+                    int leftDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.left);
+                    int rightDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.right);
+                    if (new int[] { topDistance, downDistance, leftDistance, rightDistance }.Min() < 15)
+                    {
+                        qLearning.Step(new State(distanceToAim, new Point(_map.X, _map.Y)), actions, double.MinValue);
+                        _map.ReturnToStart();
+                        _aim.ReturnToStart();
+                        qLearning.SetAndUpdate(new State(distanceToAim, new Point(_map.X, _map.Y)), actions);
+                        SetTextBoxes(qLearning.CountStates.ToString(), distanceToAim.ToString());
+                    }
+                    else
+                    {
+                        Action outAction = qLearning.Step(new State(distanceToAim, new Point(_map.X, _map.Y)), actions, 0 - distanceToAim);
+                        _map.ChangeDirection(outAction.Degrees, outAction.Direction, _speed);
+                        _aim.ChangeDirection(outAction.Degrees, outAction.Direction, _speed);
+                    }
+                    if (distanceToAim < 10) isTeached = true;
                 }
-                else
-                {
-                    Action outAction = qLearning.Step(new State(distanceToAim, new Point(_map.X, _map.Y)), actions, 0 - distanceToAim);
-                    _map.ChangeDirection(outAction.Degrees, outAction.Direction, _speed);
-                    _aim.ChangeDirection(outAction.Degrees, outAction.Direction, _speed);
-                }
-                if (distanceToAim < 10) isTeached = true;
+                _map.ReturnToStart();
+                _aim.ReturnToStart();
             }
-            _map.ReturnToStart();
-            _aim.ReturnToStart();
             isQTeaches = false;
         }
         private Action[] actions = { new Action(90, InGraphics.Moving.Direction.downright, 0), new Action(0, InGraphics.Moving.Direction.topright, 1), new Action(90, InGraphics.Moving.Direction.topleft, 2), new Action(0, InGraphics.Moving.Direction.downleft, 3), new Action(45, InGraphics.Moving.Direction.topleft, 4), new Action(45, InGraphics.Moving.Direction.downleft, 5), new Action(45, InGraphics.Moving.Direction.downright, 6), new Action(45, InGraphics.Moving.Direction.topright, 7)};
@@ -240,24 +249,25 @@ namespace Nt_Training
         private int radiusOfAreaMap = 200;
         private void timer1_Tick(object sender, EventArgs e)
         {
-            timer1.Interval = 1000 / Convert.ToInt32(textBox7.Text);
+            timer1.Interval = 1000 / Convert.ToInt32(textBox7.Text); //правильно
             int indexOfMax(double[] results)
             {
-                int index = 0; for (int step = 0; step < results.Length; step++) if (results[step] > results[index]) index = step; return index;
+                int index = 0; 
+                for (int step = 0; step < results.Length; step++) if (results[step] > results[index]) index = step;
+                return index;
             }
-            _map.MoveByDegrees();
-            _aim.MoveByDegrees();
-            bool[,] map = _map.GetAreaMap(new Rectangle(locationOfCharacter.X - radiusOfAreaMap, locationOfCharacter.Y - radiusOfAreaMap, radiusOfAreaMap * 2, radiusOfAreaMap * 2));
-            int distanceToAim = FindDistance(locationOfCharacter, new Point(_aim.X, _aim.Y));
-            Point location = new Point(radiusOfAreaMap, radiusOfAreaMap);
-            int topDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.top);
-            int downDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.down);
-            int leftDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.left);
-            int rightDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.right);
-            Action outAction = qLearning.Step(new State(distanceToAim, new Point(_map.X, _map.Y)), actions, int.MaxValue - distanceToAim * 5);
-            double[] results = _network.Start(distanceToAim / 1000, _degreesOfDirection / 360, (double)topDistance / radiusOfAreaMap, (double)downDistance / radiusOfAreaMap, (double)leftDistance / radiusOfAreaMap, (double)rightDistance / radiusOfAreaMap);
-            int indexOfMaxResult = indexOfMax(results);
-            if(outAction.Direction == actions[indexOfMaxResult].Direction && outAction.Degrees == actions[indexOfMaxResult].Degrees)
+            bool[,] map = _map.GetAreaMap(new Rectangle(locationOfCharacter.X - radiusOfAreaMap, locationOfCharacter.Y - radiusOfAreaMap, radiusOfAreaMap * 2, radiusOfAreaMap * 2)); //правильно
+            int distanceToAim = FindDistance(locationOfCharacter, new Point(_aim.X, _aim.Y)); //правильно
+
+            Point location = new Point(radiusOfAreaMap, radiusOfAreaMap); //правильно
+            int topDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.top); //правильно
+            int downDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.down); //правильно
+            int leftDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.left); //правильно
+            int rightDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.right); //правильно
+            Action outAction = qLearning.Get_Policy(new State(distanceToAim, new Point(_map.X, _map.Y)));
+            double[] results = _network.Start((double)distanceToAim / (142 * 15), ((double)(((int)outAction.Direction) * 90) + outAction.Degrees) / 360, topDistance == int.MaxValue ? 1 : (double)topDistance / radiusOfAreaMap, downDistance == int.MaxValue ? 1 : (double)downDistance / radiusOfAreaMap, leftDistance == int.MaxValue ? 1 : (double)leftDistance / radiusOfAreaMap, rightDistance == int.MaxValue ? 1 : (double)rightDistance / radiusOfAreaMap);
+            int indexOfMaxResult = indexOfMax(results); //правильно
+            if (outAction.NumberOfArray == indexOfMaxResult)
             {
                 if (distanceToAim < 5) timer1.Enabled = false;
                 _map.ChangeDirection(actions[indexOfMaxResult].Degrees, actions[indexOfMaxResult].Direction, _speed);
@@ -265,17 +275,37 @@ namespace Nt_Training
             }
             else
             {
-                results[outAction.NumberOfArray] = 1;
-                for (int step = 0; step < results.Length; step++) if (step != outAction.NumberOfArray) results[step] = 0;
-                _network.TeachNetwork(results);
+                double[] newResults = (double[])results.Clone();
+                double necessaryValue = 1;
+                newResults[outAction.NumberOfArray] = necessaryValue;
+                double valueOfEachOther = 1 - ((necessaryValue - results[outAction.NumberOfArray]) / (results.Sum() - results[outAction.NumberOfArray]));
+                for (int step = 0; step < results.Length; step++) if (step != outAction.NumberOfArray) newResults[step] *= valueOfEachOther;
+                //newResults[outAction.NumberOfArray] = 1;
+                //for (int step = 0; step < results.Length; step++) if (step != outAction.NumberOfArray) newResults[step] = 0;
+                _network.TeachNetwork(newResults);
                 _map.ReturnToStart();
                 _aim.ReturnToStart();
                 label1.Text = "Generation: " + ++generaton;
             }
+            _map.MoveByDegrees();
+            _aim.MoveByDegrees();
+
+            if (distanceToAim < min) min = distanceToAim;
+            textBox8.Text = min.ToString();
+
+            textBox9.Text = results[0].ToString();
+            textBox10.Text = results[1].ToString();
+            textBox11.Text = results[2].ToString();
+            textBox12.Text = results[3].ToString();
+            textBox13.Text = results[4].ToString();
+            textBox14.Text = results[5].ToString();
+            textBox15.Text = results[6].ToString();
+            textBox16.Text = results[7].ToString();
             textBox1.Text = qLearning.CountStates.ToString();
             textBox2.Text = distanceToAim.ToString();
             textBox3.Text = outAction.Degrees.ToString() + " - " + outAction.Direction.ToString();
         }
+        int min = int.MaxValue;
         private int FindDistance(Point firstLocation, Point secondLocation)
         {
             return Convert.ToInt32(Math.Sqrt(Math.Pow(secondLocation.X - firstLocation.X, 2) + Math.Pow(secondLocation.Y - firstLocation.Y, 2)));

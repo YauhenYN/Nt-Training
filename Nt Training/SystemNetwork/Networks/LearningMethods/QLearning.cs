@@ -78,6 +78,10 @@ namespace Nt_Training.SystemNetwork.Networks.LearningMethods
             }
             return best_action;
         }
+        public Y Get_Policy(T outState)
+        {
+            return Get_Policy(FindState(outState)).OutAction;
+        }
         private State.Action Get_action(State state)
         { //Для конкретной ситуации выбирается действие, используя e-жадный подход
           //Выбирает действие, предпринимаемое в данном состоянии, включая исследование (eps greedy)
@@ -104,6 +108,11 @@ namespace Nt_Training.SystemNetwork.Networks.LearningMethods
             if (!_states.Contains(newState)) _states.Add(newState);
             else foreach (State state in _states) if (state.Equals(newState)) newState = state;
             return newState;
+        }
+        private State FindState(T outState)
+        {
+            foreach (State state in _states) if (state.OutState.Equals(outState)) return state;
+            return null;
         }
         public void SetAndUpdate(T outState, Y[] outActions) //Вызывается при каждом обновлении карты первым
         { //Теперь нужно придумать как одновременно передавать и состояние и действия для него
