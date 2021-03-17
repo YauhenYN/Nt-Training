@@ -141,17 +141,17 @@ namespace Nt_Training
             {
                 foreach(SystemNetwork.Neurons.HiddenNeuron averageNeuron in averageNeurons)
                 {
-                    bonds.Add(new SystemNetwork.Bonds.Bond(inputNeuron, averageNeuron, Convert.ToDouble(rand.Next(-100, 100)) / 100));
+                    bonds.Add(new SystemNetwork.Bonds.Bond(inputNeuron, averageNeuron, Convert.ToDouble(rand.Next(-50, 50)) / 100));
                     inputNeuron.AddOutPutBond(bonds.Last());
                     averageNeuron.AddInputBond(bonds.Last());
                     foreach (SystemNetwork.Neurons.HiddenNeuron averageNeuron1 in averageNeurons1)
                     {
-                        bonds.Add(new SystemNetwork.Bonds.Bond(averageNeuron, averageNeuron1, Convert.ToDouble(rand.Next(-100, 100)) / 100));
+                        bonds.Add(new SystemNetwork.Bonds.Bond(averageNeuron, averageNeuron1, Convert.ToDouble(rand.Next(-50, 50)) / 100));
                         averageNeuron.AddOutputBond(bonds.Last());
                         averageNeuron1.AddInputBond(bonds.Last());
                         foreach (SystemNetwork.Neurons.OutputNeuron outputNeuron in outputNeurons)
                         {
-                            bonds.Add(new SystemNetwork.Bonds.Bond(averageNeuron1, outputNeuron, Convert.ToDouble(rand.Next(-100, 100)) / 100));
+                            bonds.Add(new SystemNetwork.Bonds.Bond(averageNeuron1, outputNeuron, Convert.ToDouble(rand.Next(-50, 50)) / 100));
                             averageNeuron1.AddOutputBond(bonds.Last());
                             outputNeuron.AddInputBond(bonds.Last());
                         }
@@ -168,7 +168,7 @@ namespace Nt_Training
             _network.AddAverageLayer(averageLayer);
             _network.AddAverageLayer(averageLayer1);
             _network.AddOutPutNeurons(outputNeurons);
-            SystemNetwork.Networks.LearningMethods.Learning learning = new SystemNetwork.Networks.LearningMethods.MOPLearning() { SpeedE = 0.7, MomentA = 0.9 };
+            SystemNetwork.Networks.LearningMethods.Learning learning = new SystemNetwork.Networks.LearningMethods.MOPLearning() { SpeedE = 0.6, MomentA = 0.6 };
             _network.SetTeaching(learning);
 
             label1.Text = "Generation: " + generaton;
@@ -272,23 +272,19 @@ namespace Nt_Training
                 if (distanceToAim < 5) timer1.Enabled = false;
                 _map.ChangeDirection(actions[indexOfMaxResult].Degrees, actions[indexOfMaxResult].Direction, _speed);
                 _aim.ChangeDirection(actions[indexOfMaxResult].Degrees, actions[indexOfMaxResult].Direction, _speed);
+                _map.MoveByDegrees();
+                _aim.MoveByDegrees();
             }
             else
             {
                 double[] newResults = (double[])results.Clone();
-                double necessaryValue = 1;
-                newResults[outAction.NumberOfArray] = necessaryValue;
-                double valueOfEachOther = 1 - ((necessaryValue - results[outAction.NumberOfArray]) / (results.Sum() - results[outAction.NumberOfArray]));
-                for (int step = 0; step < results.Length; step++) if (step != outAction.NumberOfArray) newResults[step] *= valueOfEachOther;
-                //newResults[outAction.NumberOfArray] = 1;
-                //for (int step = 0; step < results.Length; step++) if (step != outAction.NumberOfArray) newResults[step] = 0;
+                newResults[outAction.NumberOfArray] = 1;
+                newResults[indexOfMaxResult] = 0;
                 _network.TeachNetwork(newResults);
-                _map.ReturnToStart();
-                _aim.ReturnToStart();
+                //_map.ReturnToStart();
+                //_aim.ReturnToStart();
                 label1.Text = "Generation: " + ++generaton;
             }
-            _map.MoveByDegrees();
-            _aim.MoveByDegrees();
 
             if (distanceToAim < min) min = distanceToAim;
             textBox8.Text = min.ToString();

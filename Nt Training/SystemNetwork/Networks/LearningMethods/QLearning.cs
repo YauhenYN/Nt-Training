@@ -119,14 +119,18 @@ namespace Nt_Training.SystemNetwork.Networks.LearningMethods
             _total_reward = 0.0;
             _state = NewOrOldState(outState, outActions);
         }
+        State.Action _lastAction;
         public Y Step(T nextState, Y[] outActions, double reward) //s - внешнее состояние
         {//Вызывается каждый ход
             State newState = NewOrOldState(nextState, outActions);
-            var a = Get_action(_state); //Получаем Action от текущего State //Получается нужно найти State, который содержит s, но если создавать новый, то т.к. это ссылочный тип, оно будет считать их разными элементами
+            State.Action a;
+            if (_lastAction == null) a = Get_action(_state); //Получаем Action от текущего State //Получается нужно найти State, который содержит s, но если создавать новый, то т.к. это ссылочный тип, оно будет считать их разными элементами
+            else a = _lastAction;
             Update(a, newState, reward); //Нужно передавать action от текущего state - a
             _state = newState;
             _total_reward += reward;
-            return Get_action(newState).OutAction;
+            _lastAction = Get_action(newState);
+            return _lastAction.OutAction;
         }
         public Integration GetIntegration()
         {
