@@ -144,21 +144,26 @@ namespace Nt_Training
                     bonds.Add(new SystemNetwork.Bonds.Bond(inputNeuron, averageNeuron, Convert.ToDouble(rand.Next(-50, 50)) / 100));
                     inputNeuron.AddOutPutBond(bonds.Last());
                     averageNeuron.AddInputBond(bonds.Last());
-                    foreach (SystemNetwork.Neurons.HiddenNeuron averageNeuron1 in averageNeurons1)
-                    {
-                        bonds.Add(new SystemNetwork.Bonds.Bond(averageNeuron, averageNeuron1, Convert.ToDouble(rand.Next(-50, 50)) / 100));
-                        averageNeuron.AddOutputBond(bonds.Last());
-                        averageNeuron1.AddInputBond(bonds.Last());
-                        foreach (SystemNetwork.Neurons.OutputNeuron outputNeuron in outputNeurons)
-                        {
-                            bonds.Add(new SystemNetwork.Bonds.Bond(averageNeuron1, outputNeuron, Convert.ToDouble(rand.Next(-50, 50)) / 100));
-                            averageNeuron1.AddOutputBond(bonds.Last());
-                            outputNeuron.AddInputBond(bonds.Last());
-                        }
-                    }
                 }
             }
-
+            foreach (SystemNetwork.Neurons.HiddenNeuron averageNeuron in averageNeurons)
+            {
+                foreach (SystemNetwork.Neurons.HiddenNeuron averageNeuron1 in averageNeurons1)
+                {
+                    bonds.Add(new SystemNetwork.Bonds.Bond(averageNeuron, averageNeuron1, Convert.ToDouble(rand.Next(-50, 50)) / 100));
+                    averageNeuron.AddOutputBond(bonds.Last());
+                    averageNeuron1.AddInputBond(bonds.Last());
+                }
+            }
+            foreach (SystemNetwork.Neurons.HiddenNeuron averageNeuron1 in averageNeurons1)
+            {
+                foreach (SystemNetwork.Neurons.OutputNeuron outputNeuron in outputNeurons)
+                {
+                    bonds.Add(new SystemNetwork.Bonds.Bond(averageNeuron1, outputNeuron, Convert.ToDouble(rand.Next(-50, 50)) / 100));
+                    averageNeuron1.AddOutputBond(bonds.Last());
+                    outputNeuron.AddInputBond(bonds.Last());
+                }
+            }
             SystemNetwork.Layers.HiddenLayer averageLayer = new SystemNetwork.Layers.HiddenLayer(averageNeurons);
             SystemNetwork.Layers.HiddenLayer averageLayer1 = new SystemNetwork.Layers.HiddenLayer(averageNeurons1);
 
@@ -168,7 +173,7 @@ namespace Nt_Training
             _network.AddAverageLayer(averageLayer);
             _network.AddAverageLayer(averageLayer1);
             _network.AddOutPutNeurons(outputNeurons);
-            SystemNetwork.Networks.LearningMethods.Learning learning = new SystemNetwork.Networks.LearningMethods.MOPLearning() { SpeedE = 0.6, MomentA = 0.6 };
+            SystemNetwork.Networks.LearningMethods.Learning learning = new SystemNetwork.Networks.LearningMethods.MOPLearning() { SpeedE = 0.5, MomentA = 0.05 };
             _network.SetTeaching(learning);
 
             label1.Text = "Generation: " + generaton;
@@ -281,8 +286,8 @@ namespace Nt_Training
                 newResults[outAction.NumberOfArray] = 1;
                 newResults[indexOfMaxResult] = 0;
                 _network.TeachNetwork(newResults);
-                //_map.ReturnToStart();
-                //_aim.ReturnToStart();
+                _map.ReturnToStart();
+                _aim.ReturnToStart();
                 label1.Text = "Generation: " + ++generaton;
             }
 
