@@ -33,7 +33,7 @@ namespace Nt_Training
             Integration integrated = JsonSerializer.Deserialize<Integration>(str);
             qLearning = new SystemNetwork.Networks.LearningMethods.QLearning<State, Action>(integrated._alpha, integrated._eps, integrated._discount);
             State[] states = new State[integrated.locations.Length];
-            for(int step = 0; step < states.Length; step++)
+            for (int step = 0; step < states.Length; step++)
             {
                 states[step] = new State(integrated.distancesToAim[step], integrated.locations[step]);
             }
@@ -59,7 +59,7 @@ namespace Nt_Training
         }
         struct State : IEquatable<State>
         {
-            public int DistanceToAim{ get; }
+            public int DistanceToAim { get; }
             public Point Location { get; }
             public State(int distanceToAim, Point locationOfObject)
             {
@@ -101,7 +101,7 @@ namespace Nt_Training
             _aim.FixPosition();
             for (int step = 0; step < 99; step++)
             {
-                if(step < 8) _map.SetBlock(step, 0, new GRectangle(new Rectangle(), Color.Brown));
+                if (step < 8) _map.SetBlock(step, 0, new GRectangle(new Rectangle(), Color.Brown));
                 if (step < 60) _map.SetBlock(0, step, new GRectangle(new Rectangle(), Color.Brown));
                 if (step < 50 && step > 40) _map.SetBlock(8, step, new GRectangle(new Rectangle(), Color.Brown));
                 if (step < 30) _map.SetBlock(8, step, new GRectangle(new Rectangle(), Color.Brown));
@@ -112,7 +112,7 @@ namespace Nt_Training
                 }
                 if (step > 28 && step < 42) _map.SetBlock(20, step, new GRectangle(new Rectangle(), Color.Brown));
                 if (step > 8 && step < 40) _map.SetBlock(step, 50, new GRectangle(new Rectangle(), Color.Brown));
-                if(step < 32)_map.SetBlock(step, 60, new GRectangle(new Rectangle(), Color.Brown));
+                if (step < 32) _map.SetBlock(step, 60, new GRectangle(new Rectangle(), Color.Brown));
                 _map.SetBlock(39, step, new GRectangle(new Rectangle(), Color.Brown));
             }
 
@@ -122,7 +122,7 @@ namespace Nt_Training
             _drawing.OnDraw += _character.FillOn;
             _drawing.OnDraw += _aim.FillOn;
 
-            
+
             SystemNetwork.Neurons.InputNeuron[] inputNeurons = new SystemNetwork.Neurons.InputNeuron[6];
             for (int step = 0; step < inputNeurons.Length; step++) inputNeurons[step] = new SystemNetwork.Neurons.InputNeuron();
 
@@ -137,9 +137,9 @@ namespace Nt_Training
 
             List<SystemNetwork.Bonds.Bond> bonds = new List<SystemNetwork.Bonds.Bond>();
             Random rand = new Random();
-            foreach(SystemNetwork.Neurons.InputNeuron inputNeuron in inputNeurons)
+            foreach (SystemNetwork.Neurons.InputNeuron inputNeuron in inputNeurons)
             {
-                foreach(SystemNetwork.Neurons.HiddenNeuron averageNeuron in averageNeurons)
+                foreach (SystemNetwork.Neurons.HiddenNeuron averageNeuron in averageNeurons)
                 {
                     bonds.Add(new SystemNetwork.Bonds.Bond(inputNeuron, averageNeuron, Convert.ToDouble(rand.Next(-50, 50)) / 100));
                     inputNeuron.AddOutPutBond(bonds.Last());
@@ -173,7 +173,7 @@ namespace Nt_Training
             _network.AddAverageLayer(averageLayer);
             _network.AddAverageLayer(averageLayer1);
             _network.AddOutPutNeurons(outputNeurons);
-            SystemNetwork.Networks.LearningMethods.Learning learning = new SystemNetwork.Networks.LearningMethods.MOPLearning() { SpeedE = 0.5, MomentA = 0.05 };
+            SystemNetwork.Networks.LearningMethods.Learning learning = new SystemNetwork.Networks.LearningMethods.MOPLearning() { SpeedE = 0.15, MomentA = 0.05 };
             _network.SetTeaching(learning);
 
             label1.Text = "Generation: " + generaton;
@@ -209,8 +209,8 @@ namespace Nt_Training
             {
                 qLearning = new SystemNetwork.Networks.LearningMethods.QLearning<State, Action>
                     (
-                    Convert.ToDouble(textBox4.Text, CultureInfo.InvariantCulture), 
-                    Convert.ToDouble(textBox5.Text.Replace(",", "."), CultureInfo.InvariantCulture), 
+                    Convert.ToDouble(textBox4.Text, CultureInfo.InvariantCulture),
+                    Convert.ToDouble(textBox5.Text.Replace(",", "."), CultureInfo.InvariantCulture),
                     Convert.ToDouble(textBox6.Text.Replace(",", "."), CultureInfo.InvariantCulture)
                     );
                 isFirst = false;
@@ -249,32 +249,39 @@ namespace Nt_Training
             }
             isQTeaches = false;
         }
-        private Action[] actions = { new Action(90, InGraphics.Moving.Direction.downright, 0), new Action(0, InGraphics.Moving.Direction.topright, 1), new Action(90, InGraphics.Moving.Direction.topleft, 2), new Action(0, InGraphics.Moving.Direction.downleft, 3), new Action(45, InGraphics.Moving.Direction.topleft, 4), new Action(45, InGraphics.Moving.Direction.downleft, 5), new Action(45, InGraphics.Moving.Direction.downright, 6), new Action(45, InGraphics.Moving.Direction.topright, 7)};
+        private Action[] actions = { new Action(90, InGraphics.Moving.Direction.downright, 0), new Action(0, InGraphics.Moving.Direction.topright, 1), new Action(90, InGraphics.Moving.Direction.topleft, 2), new Action(0, InGraphics.Moving.Direction.downleft, 3), new Action(45, InGraphics.Moving.Direction.topleft, 4), new Action(45, InGraphics.Moving.Direction.downleft, 5), new Action(45, InGraphics.Moving.Direction.downright, 6), new Action(45, InGraphics.Moving.Direction.topright, 7) };
         private int generaton = 0;
         private int radiusOfAreaMap = 200;
+        private bool isMOPTeached = true;
         private void timer1_Tick(object sender, EventArgs e)
         {
-            timer1.Interval = 1000 / Convert.ToInt32(textBox7.Text); //правильно
+            timer1.Interval = 1000 / Convert.ToInt32(textBox7.Text);
             int indexOfMax(double[] results)
             {
-                int index = 0; 
+                int index = 0;
                 for (int step = 0; step < results.Length; step++) if (results[step] > results[index]) index = step;
                 return index;
             }
             bool[,] map = _map.GetAreaMap(new Rectangle(locationOfCharacter.X - radiusOfAreaMap, locationOfCharacter.Y - radiusOfAreaMap, radiusOfAreaMap * 2, radiusOfAreaMap * 2)); //правильно
-            int distanceToAim = FindDistance(locationOfCharacter, new Point(_aim.X, _aim.Y)); //правильно
+            int distanceToAim = FindDistance(locationOfCharacter, new Point(_aim.X, _aim.Y));
 
-            Point location = new Point(radiusOfAreaMap, radiusOfAreaMap); //правильно
-            int topDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.top); //правильно
-            int downDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.down); //правильно
-            int leftDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.left); //правильно
-            int rightDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.right); //правильно
+            Point location = new Point(radiusOfAreaMap, radiusOfAreaMap);
+            int topDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.top);
+            int downDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.down);
+            int leftDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.left);
+            int rightDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.right);
             Action outAction = qLearning.Get_Policy(new State(distanceToAim, new Point(_map.X, _map.Y)));
             double[] results = _network.Start((double)distanceToAim / (142 * 15), ((double)(((int)outAction.Direction) * 90) + outAction.Degrees) / 360, topDistance == int.MaxValue ? 1 : (double)topDistance / radiusOfAreaMap, downDistance == int.MaxValue ? 1 : (double)downDistance / radiusOfAreaMap, leftDistance == int.MaxValue ? 1 : (double)leftDistance / radiusOfAreaMap, rightDistance == int.MaxValue ? 1 : (double)rightDistance / radiusOfAreaMap);
-            int indexOfMaxResult = indexOfMax(results); //правильно
+            int indexOfMaxResult = indexOfMax(results);
             if (outAction.NumberOfArray == indexOfMaxResult)
             {
-                if (distanceToAim < 5) timer1.Enabled = false;
+                if (distanceToAim < 7)
+                {
+                    if (isMOPTeached) timer1.Enabled = false;
+                    _map.ReturnToStart();
+                    _aim.ReturnToStart();
+                    label1.Text = "Generation: " + ++generaton;
+                }
                 _map.ChangeDirection(actions[indexOfMaxResult].Degrees, actions[indexOfMaxResult].Direction, _speed);
                 _aim.ChangeDirection(actions[indexOfMaxResult].Degrees, actions[indexOfMaxResult].Direction, _speed);
                 _map.MoveByDegrees();
@@ -282,14 +289,59 @@ namespace Nt_Training
             }
             else
             {
+                isMOPTeached = false;
                 double[] newResults = (double[])results.Clone();
                 newResults[outAction.NumberOfArray] = 1;
                 for (int step = 0; step < results.Length; step++) if (step != outAction.NumberOfArray) newResults[step] = 0;
                 _network.TeachNetwork(newResults);
+            }
+
+            if (distanceToAim < min) min = distanceToAim;
+            textBox8.Text = min.ToString();
+
+            textBox9.Text = results[0].ToString();
+            textBox10.Text = results[1].ToString();
+            textBox11.Text = results[2].ToString();
+            textBox12.Text = results[3].ToString();
+            textBox13.Text = results[4].ToString();
+            textBox14.Text = results[5].ToString();
+            textBox15.Text = results[6].ToString();
+            textBox16.Text = results[7].ToString();
+            textBox1.Text = qLearning.CountStates.ToString();
+            textBox2.Text = distanceToAim.ToString();
+            textBox3.Text = outAction.Degrees.ToString() + " - " + outAction.Direction.ToString();
+        }
+        private void timer2_Tick(object sender, EventArgs e)
+        {
+            timer2.Interval = 1000 / Convert.ToInt32(textBox7.Text);
+            int indexOfMax(double[] results)
+            {
+                int index = 0;
+                for (int step = 0; step < results.Length; step++) if (results[step] > results[index]) index = step;
+                return index;
+            }
+            bool[,] map = _map.GetAreaMap(new Rectangle(locationOfCharacter.X - radiusOfAreaMap, locationOfCharacter.Y - radiusOfAreaMap, radiusOfAreaMap * 2, radiusOfAreaMap * 2)); //правильно
+            int distanceToAim = FindDistance(locationOfCharacter, new Point(_aim.X, _aim.Y));
+
+            Point location = new Point(radiusOfAreaMap, radiusOfAreaMap);
+            int topDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.top);
+            int downDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.down);
+            int leftDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.left);
+            int rightDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.right);
+            Action outAction = qLearning.Get_Policy(new State(distanceToAim, new Point(_map.X, _map.Y)));
+            if (distanceToAim < 7 || new double[] { topDistance, downDistance, leftDistance, rightDistance }.Min() < 3 || (outAction.NumberOfArray == 0 && outAction.Degrees == 0))
+            {
+                if (isMOPTeached) timer1.Enabled = false;
                 _map.ReturnToStart();
                 _aim.ReturnToStart();
                 label1.Text = "Generation: " + ++generaton;
             }
+            double[] results = _network.Start((double)distanceToAim / (142 * 15), ((double)(((int)outAction.Direction) * 90) + outAction.Degrees) / 360, topDistance == int.MaxValue ? 1 : (double)topDistance / radiusOfAreaMap, downDistance == int.MaxValue ? 1 : (double)downDistance / radiusOfAreaMap, leftDistance == int.MaxValue ? 1 : (double)leftDistance / radiusOfAreaMap, rightDistance == int.MaxValue ? 1 : (double)rightDistance / radiusOfAreaMap);
+            int indexOfMaxResult = indexOfMax(results);
+            _map.ChangeDirection(actions[indexOfMaxResult].Degrees, actions[indexOfMaxResult].Direction, _speed);
+            _aim.ChangeDirection(actions[indexOfMaxResult].Degrees, actions[indexOfMaxResult].Direction, _speed);
+            _map.MoveByDegrees();
+            _aim.MoveByDegrees();
 
             if (distanceToAim < min) min = distanceToAim;
             textBox8.Text = min.ToString();
@@ -352,23 +404,33 @@ namespace Nt_Training
                 if (!isQTeaches) { TeachQLearningAsync(); isQTeaches = true; }
                 else if (isQTeaches) { isQTeaches = false; }
             }
-            else if (comboBox1.SelectedIndex == 1 && !isQTeaches && qLearning != null)
+            else if (comboBox1.SelectedIndex == 1 && !isQTeaches && qLearning != null && !timer2.Enabled)
             {
-                if (timer1.Enabled == false) { qLearning.SetAndUpdate(new State(FindDistance(locationOfCharacter,
-                    new Point(_aim.X, _aim.Y)), new Point(_map.X, _map.Y)), actions); timer1.Enabled = true; }
-                else timer1.Enabled = false;
+                if (timer1.Enabled == false)
+                {
+                    qLearning.SetAndUpdate(new State(FindDistance(locationOfCharacter, new Point(_aim.X, _aim.Y)), new Point(_map.X, _map.Y)), actions); timer1.Enabled = true;
+                }
+                else
+                {
+                    timer1.Enabled = false;
+                    _map.ReturnToStart();
+                    _aim.ReturnToStart();
+                }
             }
             else if(comboBox1.SelectedIndex == 2)
             {
-                if (isTeached && timer1.Enabled == false)
+                if (!timer1.Enabled)
                 {
-                    if (!isQTeaches) { TeachQLearningAsync(); isQTeaches = true; }
-                    else if (isQTeaches) { isQTeaches = false; }
-                }
-                else if(!isQTeaches)
-                {
-                    if (timer1.Enabled == false) timer1.Enabled = true;
-                    else timer1.Enabled = false;
+                    if (timer2.Enabled == false)
+                    {
+                        qLearning.SetAndUpdate(new State(FindDistance(locationOfCharacter, new Point(_aim.X, _aim.Y)), new Point(_map.X, _map.Y)), actions); timer2.Enabled = true;
+                    }
+                    else
+                    {
+                        timer2.Enabled = false;
+                        _map.ReturnToStart();
+                        _aim.ReturnToStart();
+                    }
                 }
             }
         }

@@ -80,7 +80,8 @@ namespace Nt_Training.SystemNetwork.Networks.LearningMethods
         }
         public Y Get_Policy(T outState)
         {
-            return Get_Policy(FindState(outState)).OutAction;
+            State state = FindState(outState);
+            return state == null ? new Y() : Get_Policy(state).OutAction;
         }
         private State.Action Get_action(State state)
         { //Для конкретной ситуации выбирается действие, используя e-жадный подход
