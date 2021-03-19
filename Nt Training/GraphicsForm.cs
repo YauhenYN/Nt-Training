@@ -284,7 +284,7 @@ namespace Nt_Training
             {
                 double[] newResults = (double[])results.Clone();
                 newResults[outAction.NumberOfArray] = 1;
-                newResults[indexOfMaxResult] = 0;
+                for (int step = 0; step < results.Length; step++) if (step != outAction.NumberOfArray) newResults[step] = 0;
                 _network.TeachNetwork(newResults);
                 _map.ReturnToStart();
                 _aim.ReturnToStart();
