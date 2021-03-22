@@ -70,5 +70,64 @@ namespace Nt_Training.SystemNetwork.Networks
             _learning.SetLayers(_inputLayer, _averageLayers.ToArray(), _outputLayer);
         }
         public double TeachNetwork(params double[] waitingResults) => _learning.Learn(this, waitingResults);
+        public double[][] GetWeights()
+        {
+            double[][] weights = new double[2 + _averageLayers.Count - 1][];
+            weights[0] = new double[_inputLayer.InputNeurons.Count * _averageLayers[0].AverageNeurons.Count];
+            for(int neuronNumber = 0; neuronNumber < _inputLayer.InputNeurons.Count; neuronNumber++)
+            {
+                for(int bondNumber = 0; bondNumber < _inputLayer.InputNeurons[neuronNumber].OutPutBonds.Length; bondNumber++)
+                {
+                    weights[0][(neuronNumber * _inputLayer.InputNeurons[neuronNumber].OutPutBonds.Length) + bondNumber] = _inputLayer.InputNeurons[neuronNumber].OutPutBonds[bondNumber].Weigh;
+                }
+            }
+            for(int step = 0; step < _averageLayers.Count-1; step++)
+            {
+                weights[step + 1] = new double[_averageLayers[step].AverageNeurons.Count * _averageLayers[step+1].AverageNeurons.Count];
+                for(int neuronNumber = 0; neuronNumber < _averageLayers[step].AverageNeurons.Count; neuronNumber++)
+                {
+                    for(int bondNumber = 0; bondNumber < _averageLayers[step].AverageNeurons[neuronNumber].OutputBonds.Length; bondNumber++)
+                    {
+                        weights[step + 1][(neuronNumber * _averageLayers[step].AverageNeurons[neuronNumber].OutputBonds.Length) + bondNumber] = _averageLayers[step].AverageNeurons[neuronNumber].OutputBonds[bondNumber].Weigh;
+                    }
+                }
+            }
+            weights[weights.Length - 1] = new double[_averageLayers[_averageLayers.Count - 1].AverageNeurons.Count * _outputLayer.OutputNeurons.Count];
+            for (int neuronNumber = 0; neuronNumber < _averageLayers[_averageLayers.Count - 1].AverageNeurons.Count; neuronNumber++)
+            {
+                for (int bondNumber = 0; bondNumber < _averageLayers[_averageLayers.Count - 1].AverageNeurons[neuronNumber].OutputBonds.Length; bondNumber++)
+                {
+                    weights[weights.Length - 1][(neuronNumber * _averageLayers[_averageLayers.Count - 1].AverageNeurons[neuronNumber].OutputBonds.Length) + bondNumber] = _averageLayers[_averageLayers.Count - 1].AverageNeurons[neuronNumber].OutputBonds[bondNumber].Weigh;
+                }
+            }
+            return weights;
+        }
+        public void Integration(double[][] weights)
+        {
+            for (int neuronNumber = 0; neuronNumber < _inputLayer.InputNeurons.Count; neuronNumber++)
+            {
+                for (int bondNumber = 0; bondNumber < _inputLayer.InputNeurons[neuronNumber].OutPutBonds.Length; bondNumber++)
+                {
+                    _inputLayer.InputNeurons[neuronNumber].OutPutBonds[bondNumber].Weigh = weights[0][(neuronNumber * _inputLayer.InputNeurons[neuronNumber].OutPutBonds.Length) + bondNumber];
+                }
+            }
+            for (int step = 0; step < _averageLayers.Count - 1; step++)
+            {
+                for (int neuronNumber = 0; neuronNumber < _averageLayers[step].AverageNeurons.Count; neuronNumber++)
+                {
+                    for (int bondNumber = 0; bondNumber < _averageLayers[step].AverageNeurons[neuronNumber].OutputBonds.Length; bondNumber++)
+                    {
+                        _averageLayers[step].AverageNeurons[neuronNumber].OutputBonds[bondNumber].Weigh = weights[step + 1][(neuronNumber * _averageLayers[step].AverageNeurons[neuronNumber].OutputBonds.Length) + bondNumber];
+                    }
+                }
+            }
+            for (int neuronNumber = 0; neuronNumber < _averageLayers[_averageLayers.Count-1].AverageNeurons.Count; neuronNumber++)
+            {
+                for (int bondNumber = 0; bondNumber < _averageLayers[_averageLayers.Count - 1].AverageNeurons[neuronNumber].OutputBonds.Length; bondNumber++)
+                {
+                    _averageLayers[_averageLayers.Count - 1].AverageNeurons[neuronNumber].OutputBonds[bondNumber].Weigh = weights[weights.Length - 1][(neuronNumber * _averageLayers[_averageLayers.Count - 1].AverageNeurons[neuronNumber].OutputBonds.Length) + bondNumber];
+                }
+            }
+        }
     }
 }

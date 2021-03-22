@@ -23,6 +23,59 @@ namespace Nt_Training
             InitializeComponent();
             SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
             UpdateStyles();
+
+            SystemNetwork.Neurons.InputNeuron[] inputNeurons = new SystemNetwork.Neurons.InputNeuron[6];
+            for (int step = 0; step < inputNeurons.Length; step++) inputNeurons[step] = new SystemNetwork.Neurons.InputNeuron();
+
+            SystemNetwork.Neurons.HiddenNeuron[] averageNeurons = new SystemNetwork.Neurons.HiddenNeuron[16];
+            for (int step = 0; step < averageNeurons.Length; step++) averageNeurons[step] = new SystemNetwork.Neurons.HiddenNeuron();
+
+            SystemNetwork.Neurons.HiddenNeuron[] averageNeurons1 = new SystemNetwork.Neurons.HiddenNeuron[16];
+            for (int step = 0; step < averageNeurons1.Length; step++) averageNeurons1[step] = new SystemNetwork.Neurons.HiddenNeuron();
+
+            SystemNetwork.Neurons.OutputNeuron[] outputNeurons = new SystemNetwork.Neurons.OutputNeuron[8];
+            for (int step = 0; step < outputNeurons.Length; step++) outputNeurons[step] = new SystemNetwork.Neurons.OutputNeuron();
+
+            List<SystemNetwork.Bonds.Bond> bonds = new List<SystemNetwork.Bonds.Bond>();
+            Random rand = new Random();
+            foreach (SystemNetwork.Neurons.InputNeuron inputNeuron in inputNeurons)
+            {
+                foreach (SystemNetwork.Neurons.HiddenNeuron averageNeuron in averageNeurons)
+                {
+                    bonds.Add(new SystemNetwork.Bonds.Bond(inputNeuron, averageNeuron, Convert.ToDouble(rand.Next(-50, 50)) / 100));
+                    inputNeuron.AddOutPutBond(bonds.Last());
+                    averageNeuron.AddInputBond(bonds.Last());
+                }
+            }
+            foreach (SystemNetwork.Neurons.HiddenNeuron averageNeuron in averageNeurons)
+            {
+                foreach (SystemNetwork.Neurons.HiddenNeuron averageNeuron1 in averageNeurons1)
+                {
+                    bonds.Add(new SystemNetwork.Bonds.Bond(averageNeuron, averageNeuron1, Convert.ToDouble(rand.Next(-50, 50)) / 100));
+                    averageNeuron.AddOutputBond(bonds.Last());
+                    averageNeuron1.AddInputBond(bonds.Last());
+                }
+            }
+            foreach (SystemNetwork.Neurons.HiddenNeuron averageNeuron1 in averageNeurons1)
+            {
+                foreach (SystemNetwork.Neurons.OutputNeuron outputNeuron in outputNeurons)
+                {
+                    bonds.Add(new SystemNetwork.Bonds.Bond(averageNeuron1, outputNeuron, Convert.ToDouble(rand.Next(-50, 50)) / 100));
+                    averageNeuron1.AddOutputBond(bonds.Last());
+                    outputNeuron.AddInputBond(bonds.Last());
+                }
+            }
+            SystemNetwork.Layers.HiddenLayer averageLayer = new SystemNetwork.Layers.HiddenLayer(averageNeurons);
+            SystemNetwork.Layers.HiddenLayer averageLayer1 = new SystemNetwork.Layers.HiddenLayer(averageNeurons1);
+
+            SystemNetwork.Neurons.ActivationFunctions.LogisticFunction function = new SystemNetwork.Neurons.ActivationFunctions.LogisticFunction(2);
+            _network = new SystemNetwork.Networks.Network(function);
+            _network.AddInPutNeurons(inputNeurons);
+            _network.AddAverageLayer(averageLayer);
+            _network.AddAverageLayer(averageLayer1);
+            _network.AddOutPutNeurons(outputNeurons);
+            SystemNetwork.Networks.LearningMethods.Learning learning = new SystemNetwork.Networks.LearningMethods.MOPLearning() { SpeedE = 0.15, MomentA = 0.05 };
+            _network.SetTeaching(learning);
         }
         public GraphicsForm(string path) : this()
         {
@@ -40,6 +93,7 @@ namespace Nt_Training
             List<List<Action>> actions = new List<List<Action>>();
             for (int step = 0; step < integrated.q_values.Count; step++) actions.Add(new List<Action>(this.actions));
             qLearning.Integrate(states, actions, integrated.q_values);
+            _network.Integration(integrated.weights);
             textBox4.Text = integrated._alpha.ToString(CultureInfo.InvariantCulture);
             textBox5.Text = integrated._eps.ToString(CultureInfo.InvariantCulture);
             textBox6.Text = integrated._discount.ToString(CultureInfo.InvariantCulture);
@@ -59,9 +113,9 @@ namespace Nt_Training
         }
         struct State : IEquatable<State>
         {
-            public int DistanceToAim { get; }
+            public double DistanceToAim { get; }
             public Point Location { get; }
-            public State(int distanceToAim, Point locationOfObject)
+            public State(double distanceToAim, Point locationOfObject)
             {
                 DistanceToAim = distanceToAim;
                 Location = locationOfObject;
@@ -122,60 +176,6 @@ namespace Nt_Training
             _drawing.OnDraw += _character.FillOn;
             _drawing.OnDraw += _aim.FillOn;
 
-
-            SystemNetwork.Neurons.InputNeuron[] inputNeurons = new SystemNetwork.Neurons.InputNeuron[6];
-            for (int step = 0; step < inputNeurons.Length; step++) inputNeurons[step] = new SystemNetwork.Neurons.InputNeuron();
-
-            SystemNetwork.Neurons.HiddenNeuron[] averageNeurons = new SystemNetwork.Neurons.HiddenNeuron[16];
-            for (int step = 0; step < averageNeurons.Length; step++) averageNeurons[step] = new SystemNetwork.Neurons.HiddenNeuron();
-
-            SystemNetwork.Neurons.HiddenNeuron[] averageNeurons1 = new SystemNetwork.Neurons.HiddenNeuron[16];
-            for (int step = 0; step < averageNeurons1.Length; step++) averageNeurons1[step] = new SystemNetwork.Neurons.HiddenNeuron();
-
-            SystemNetwork.Neurons.OutputNeuron[] outputNeurons = new SystemNetwork.Neurons.OutputNeuron[8];
-            for (int step = 0; step < outputNeurons.Length; step++) outputNeurons[step] = new SystemNetwork.Neurons.OutputNeuron();
-
-            List<SystemNetwork.Bonds.Bond> bonds = new List<SystemNetwork.Bonds.Bond>();
-            Random rand = new Random();
-            foreach (SystemNetwork.Neurons.InputNeuron inputNeuron in inputNeurons)
-            {
-                foreach (SystemNetwork.Neurons.HiddenNeuron averageNeuron in averageNeurons)
-                {
-                    bonds.Add(new SystemNetwork.Bonds.Bond(inputNeuron, averageNeuron, Convert.ToDouble(rand.Next(-50, 50)) / 100));
-                    inputNeuron.AddOutPutBond(bonds.Last());
-                    averageNeuron.AddInputBond(bonds.Last());
-                }
-            }
-            foreach (SystemNetwork.Neurons.HiddenNeuron averageNeuron in averageNeurons)
-            {
-                foreach (SystemNetwork.Neurons.HiddenNeuron averageNeuron1 in averageNeurons1)
-                {
-                    bonds.Add(new SystemNetwork.Bonds.Bond(averageNeuron, averageNeuron1, Convert.ToDouble(rand.Next(-50, 50)) / 100));
-                    averageNeuron.AddOutputBond(bonds.Last());
-                    averageNeuron1.AddInputBond(bonds.Last());
-                }
-            }
-            foreach (SystemNetwork.Neurons.HiddenNeuron averageNeuron1 in averageNeurons1)
-            {
-                foreach (SystemNetwork.Neurons.OutputNeuron outputNeuron in outputNeurons)
-                {
-                    bonds.Add(new SystemNetwork.Bonds.Bond(averageNeuron1, outputNeuron, Convert.ToDouble(rand.Next(-50, 50)) / 100));
-                    averageNeuron1.AddOutputBond(bonds.Last());
-                    outputNeuron.AddInputBond(bonds.Last());
-                }
-            }
-            SystemNetwork.Layers.HiddenLayer averageLayer = new SystemNetwork.Layers.HiddenLayer(averageNeurons);
-            SystemNetwork.Layers.HiddenLayer averageLayer1 = new SystemNetwork.Layers.HiddenLayer(averageNeurons1);
-
-            SystemNetwork.Neurons.ActivationFunctions.LogisticFunction function = new SystemNetwork.Neurons.ActivationFunctions.LogisticFunction(2);
-            _network = new SystemNetwork.Networks.Network(function);
-            _network.AddInPutNeurons(inputNeurons);
-            _network.AddAverageLayer(averageLayer);
-            _network.AddAverageLayer(averageLayer1);
-            _network.AddOutPutNeurons(outputNeurons);
-            SystemNetwork.Networks.LearningMethods.Learning learning = new SystemNetwork.Networks.LearningMethods.MOPLearning() { SpeedE = 0.15, MomentA = 0.05 };
-            _network.SetTeaching(learning);
-
             label1.Text = "Generation: " + generaton;
 
             _drawingThread = new Thread(new ThreadStart(() => { while (true) { _drawing.Draw(); _drawing.DisposeBuffer(); _drawing.RefreshBuffer(); } }));
@@ -218,7 +218,7 @@ namespace Nt_Training
             qLearning.SetAndUpdate(new State(FindDistance(locationOfCharacter, new Point(_aim.X, _aim.Y)), new Point(_map.X, _map.Y)), actions);
             for (int step = 0; isQTeaches; step++)
             {
-                for (int distanceToAim = FindDistance(locationOfCharacter, new Point(_aim.X, _aim.Y)); distanceToAim > 5 && isQTeaches; distanceToAim = FindDistance(locationOfCharacter, new Point(_aim.X, _aim.Y)))
+                for (double distanceToAim = FindDistance(locationOfCharacter, new Point(_aim.X, _aim.Y)); distanceToAim > 5 && isQTeaches; distanceToAim = FindDistance(locationOfCharacter, new Point(_aim.X, _aim.Y)))
                 {
                     _map.MoveByDegrees();
                     _aim.MoveByDegrees();
@@ -263,7 +263,7 @@ namespace Nt_Training
                 return index;
             }
             bool[,] map = _map.GetAreaMap(new Rectangle(locationOfCharacter.X - radiusOfAreaMap, locationOfCharacter.Y - radiusOfAreaMap, radiusOfAreaMap * 2, radiusOfAreaMap * 2)); //правильно
-            int distanceToAim = FindDistance(locationOfCharacter, new Point(_aim.X, _aim.Y));
+            double distanceToAim = FindDistance(locationOfCharacter, new Point(_aim.X, _aim.Y));
 
             Point location = new Point(radiusOfAreaMap, radiusOfAreaMap);
             int topDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.top);
@@ -296,7 +296,7 @@ namespace Nt_Training
                 _network.TeachNetwork(newResults);
             }
 
-            if (distanceToAim < min) min = distanceToAim;
+            if (distanceToAim < min) min = Convert.ToInt32(distanceToAim);
             textBox8.Text = min.ToString();
 
             textBox9.Text = results[0].ToString();
@@ -321,7 +321,7 @@ namespace Nt_Training
                 return index;
             }
             bool[,] map = _map.GetAreaMap(new Rectangle(locationOfCharacter.X - radiusOfAreaMap, locationOfCharacter.Y - radiusOfAreaMap, radiusOfAreaMap * 2, radiusOfAreaMap * 2)); //правильно
-            int distanceToAim = FindDistance(locationOfCharacter, new Point(_aim.X, _aim.Y));
+            double distanceToAim = FindDistance(locationOfCharacter, new Point(_aim.X, _aim.Y));
 
             Point location = new Point(radiusOfAreaMap, radiusOfAreaMap);
             int topDistance = FindObstacle(map, location, 30, InGraphics.Moving.MoveTo.top);
@@ -331,19 +331,27 @@ namespace Nt_Training
             Action outAction = qLearning.Get_Policy(new State(distanceToAim, new Point(_map.X, _map.Y)));
             if (distanceToAim < 7 || new double[] { topDistance, downDistance, leftDistance, rightDistance }.Min() < 3 || (outAction.NumberOfArray == 0 && outAction.Degrees == 0))
             {
-                if (isMOPTeached) timer1.Enabled = false;
                 _map.ReturnToStart();
                 _aim.ReturnToStart();
                 label1.Text = "Generation: " + ++generaton;
             }
             double[] results = _network.Start((double)distanceToAim / (142 * 15), ((double)(((int)outAction.Direction) * 90) + outAction.Degrees) / 360, topDistance == int.MaxValue ? 1 : (double)topDistance / radiusOfAreaMap, downDistance == int.MaxValue ? 1 : (double)downDistance / radiusOfAreaMap, leftDistance == int.MaxValue ? 1 : (double)leftDistance / radiusOfAreaMap, rightDistance == int.MaxValue ? 1 : (double)rightDistance / radiusOfAreaMap);
             int indexOfMaxResult = indexOfMax(results);
-            _map.ChangeDirection(actions[indexOfMaxResult].Degrees, actions[indexOfMaxResult].Direction, _speed);
-            _aim.ChangeDirection(actions[indexOfMaxResult].Degrees, actions[indexOfMaxResult].Direction, _speed);
+            int commonDegrees = (((int)actions[indexOfMaxResult].Direction % 2 == 0 ? -1 : 1) * actions[indexOfMaxResult].Degrees + ((((int)actions[indexOfMaxResult].Direction / 2) + 1) * 180)) % 360;
+            double speed = _speed;
+            if (isPhysics)
+            {
+                Physics.Wind(ref commonDegrees, ref speed, 0.3, 270);
+            }
+            int direction = (commonDegrees / 90) - 1;
+            int degrees;
+            degrees = Math.Abs((((direction / 2) + 1) * 180) - -((direction % 2 == 0 ? -1 : 1) * commonDegrees)) % 360;
+            _map.ChangeDirection(degrees, (InGraphics.Moving.Direction)direction, speed);
+            _aim.ChangeDirection(degrees, (InGraphics.Moving.Direction)direction, speed); 
             _map.MoveByDegrees();
             _aim.MoveByDegrees();
 
-            if (distanceToAim < min) min = distanceToAim;
+            if (distanceToAim < min) min = Convert.ToInt32(distanceToAim);
             textBox8.Text = min.ToString();
 
             textBox9.Text = results[0].ToString();
@@ -359,9 +367,9 @@ namespace Nt_Training
             textBox3.Text = outAction.Degrees.ToString() + " - " + outAction.Direction.ToString();
         }
         int min = int.MaxValue;
-        private int FindDistance(Point firstLocation, Point secondLocation)
+        private double FindDistance(Point firstLocation, Point secondLocation)
         {
-            return Convert.ToInt32(Math.Sqrt(Math.Pow(secondLocation.X - firstLocation.X, 2) + Math.Pow(secondLocation.Y - firstLocation.Y, 2)));
+            return Math.Sqrt(Math.Pow(secondLocation.X - firstLocation.X, 2) + Math.Pow(secondLocation.Y - firstLocation.Y, 2));
         }
         public int FindObstacle(bool[,] map, Point position, int length, InGraphics.Moving.MoveTo direction)
         {
@@ -388,14 +396,10 @@ namespace Nt_Training
             {
                 for(int xBuffer = position.X, yBuffer = position.Y; yBuffer + (step * Math.Abs(xSum)) < map.GetLength(0) && yBuffer + (step * Math.Abs(xSum)) >= 0 && xBuffer + (step * Math.Abs(ySum)) < map.GetLength(1) && xBuffer + (step * Math.Abs(ySum)) >= 0; xBuffer += xSum, yBuffer += ySum)
                 {
-                    if (map[yBuffer + (step * Math.Abs(xSum)), xBuffer + (step * Math.Abs(ySum))]) return FindDistance(position, new Point(xBuffer + (step * Math.Abs(ySum)), yBuffer + (step * Math.Abs(xSum))));
+                    if (map[yBuffer + (step * Math.Abs(xSum)), xBuffer + (step * Math.Abs(ySum))]) return Convert.ToInt32(FindDistance(position, new Point(xBuffer + (step * Math.Abs(ySum)), yBuffer + (step * Math.Abs(xSum)))));
                 }
             }
             return int.MaxValue;
-        }
-        private void button5_Click(object sender, EventArgs e)
-        {
-
         }
         private void button1_Click(object sender, EventArgs e)
         {
@@ -434,16 +438,11 @@ namespace Nt_Training
                 }
             }
         }
-
+        bool isPhysics = false;
         private void button2_Click(object sender, EventArgs e)
         {
-            if (isTeached && comboBox1.SelectedIndex == 2)
-            {
-                if (comboBox2.SelectedIndex == 1)
-                {
-                    Physics.Wind(ref _degreesOfDirection, ref _speed, 0.2);
-                }
-            }
+            if (isPhysics) isPhysics = false;
+            else isPhysics = true;
         }
 
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
@@ -457,13 +456,14 @@ namespace Nt_Training
                 inIntegration._discount = integration._discount;
                 inIntegration._eps = integration._eps;
                 inIntegration.locations = new Point[integration.outStates.Length];
-                inIntegration.distancesToAim = new int[integration.outStates.Length];
+                inIntegration.distancesToAim = new double[integration.outStates.Length];
+                inIntegration.weights = _network.GetWeights();
                 for (int step = 0; step < integration.outStates.Length; step++)
                 {
                     inIntegration.locations[step] = integration.outStates[step].Location;
                     inIntegration.distancesToAim[step] = integration.outStates[step].DistanceToAim;
                 }
-                string wPage = JsonSerializer.Serialize<Integration>(inIntegration);
+                string wPage = JsonSerializer.Serialize(inIntegration);
                 File.WriteAllText(_path, wPage);
             }
         }
@@ -471,7 +471,8 @@ namespace Nt_Training
         {
             public Point[] locations { get; set; }
             public List<List<double>> q_values { get; set; }
-            public int[] distancesToAim { get; set; }
+            public double[][] weights { get; set; }
+            public double[] distancesToAim { get; set; }
             public double _alpha { get; set; }
             public double _eps { get; set; }
             public double _discount { get; set; }
@@ -486,13 +487,15 @@ namespace Nt_Training
             if (fileDialog.FileName.Length > 0 && qLearning != null)
             {
                 SystemNetwork.Networks.LearningMethods.QLearning<State, Action>.Integration integration = qLearning.GetIntegration();
+
                 Integration inIntegration = new Integration();
                 inIntegration.q_values = integration.q_values;
                 inIntegration._alpha = integration._alpha;
                 inIntegration._discount = integration._discount;
                 inIntegration._eps = integration._eps;
+                inIntegration.weights = _network.GetWeights();
                 inIntegration.locations = new Point[integration.outStates.Length];
-                inIntegration.distancesToAim = new int[integration.outStates.Length];
+                inIntegration.distancesToAim = new double[integration.outStates.Length];
                 for(int step = 0; step < integration.outStates.Length; step++)
                 {
                     inIntegration.locations[step] = integration.outStates[step].Location;
