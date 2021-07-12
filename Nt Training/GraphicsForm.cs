@@ -139,7 +139,6 @@ namespace Nt_Training
         private Point locationOfCharacter, locationOfAim;
         private SystemNetwork.Networks.Network _network;
         private SystemNetwork.Networks.LearningMethods.QLearning<State, Action> qLearning;
-        private int _degreesOfDirection;
         private double _speed;
         private Thread _drawingThread;
         private void GraphicsForm_Shown(object sender, EventArgs e)
@@ -200,7 +199,6 @@ namespace Nt_Training
                 textBox2.Text = secondText;
             }
         }
-        bool isTeached;
         bool isFirst = true;
         private void TeachQLearning()
         {
@@ -242,7 +240,6 @@ namespace Nt_Training
                         _map.ChangeDirection(outAction.Degrees, outAction.Direction, _speed);
                         _aim.ChangeDirection(outAction.Degrees, outAction.Direction, _speed);
                     }
-                    if (distanceToAim < 10) isTeached = true;
                 }
                 _map.ReturnToStart();
                 _aim.ReturnToStart();
@@ -296,17 +293,6 @@ namespace Nt_Training
                 _network.TeachNetwork(newResults);
             }
 
-            if (distanceToAim < min) min = Convert.ToInt32(distanceToAim);
-            textBox8.Text = min.ToString();
-
-            textBox9.Text = results[0].ToString();
-            textBox10.Text = results[1].ToString();
-            textBox11.Text = results[2].ToString();
-            textBox12.Text = results[3].ToString();
-            textBox13.Text = results[4].ToString();
-            textBox14.Text = results[5].ToString();
-            textBox15.Text = results[6].ToString();
-            textBox16.Text = results[7].ToString();
             textBox1.Text = qLearning.CountStates.ToString();
             textBox2.Text = distanceToAim.ToString();
             textBox3.Text = outAction.Degrees.ToString() + " - " + outAction.Direction.ToString();
@@ -351,22 +337,10 @@ namespace Nt_Training
             _map.MoveByDegrees();
             _aim.MoveByDegrees();
 
-            if (distanceToAim < min) min = Convert.ToInt32(distanceToAim);
-            textBox8.Text = min.ToString();
-
-            textBox9.Text = results[0].ToString();
-            textBox10.Text = results[1].ToString();
-            textBox11.Text = results[2].ToString();
-            textBox12.Text = results[3].ToString();
-            textBox13.Text = results[4].ToString();
-            textBox14.Text = results[5].ToString();
-            textBox15.Text = results[6].ToString();
-            textBox16.Text = results[7].ToString();
             textBox1.Text = qLearning.CountStates.ToString();
             textBox2.Text = distanceToAim.ToString();
             textBox3.Text = outAction.Degrees.ToString() + " - " + outAction.Direction.ToString();
         }
-        int min = int.MaxValue;
         private double FindDistance(Point firstLocation, Point secondLocation)
         {
             return Math.Sqrt(Math.Pow(secondLocation.X - firstLocation.X, 2) + Math.Pow(secondLocation.Y - firstLocation.Y, 2));
